@@ -3,13 +3,19 @@
 This document details the operations with the DApp, with brief details on when
 each one is called, its expected inputs and outputs.
 
-## createProject (advance)
+## Project management
 
-Input: JSON, schema:
+### createProject (advance)
+
+- Sender: TribesFactory contract
+- Input: ABI Encoded. with the following schema:
+
 ```python
 class CreateProjectInput(BaseModel):
     name: str
     description: str
+    tribes_addr: abi.Address # Address of corresponding Tribe contract
+    supporter_addr: abi.Address # Address of corresponding Supporter contract
     max_revenue_share: int
     min_viable_value: int
     pledged_value: int
@@ -21,18 +27,19 @@ class CreateProjectInput(BaseModel):
 ```
 
 Output: Notice:
+
 ```python
 class CreateProjectNotice(BaseModel):
     project_id: str
     name: str
 ```
 
-
 ### listProjects (inspect)
 
 Path: `/project/`
 
 Output: JSON, a list of objects like
+
 ```python
 class ListProjectOutput(BaseModel):
     name: str
@@ -41,7 +48,7 @@ class ListProjectOutput(BaseModel):
     member_erc1155: abi.Address
     financer_erc20: abi.Address
     archetypes: list[str]
-    
+
     max_revenue_share: int
     min_viable_value: int
     pledged_value: int
@@ -80,9 +87,11 @@ class CreateArchetypeInput(BaseModel):
     total_presales: int
     num_sales: int
 ```
+
 ### createArchetype (advance)
 
 Input:
+
 ```python
 class CreateArchetypeInput(BaseModel):
     project_id: str
@@ -96,12 +105,12 @@ class CreateArchetypeInput(BaseModel):
 
 Path: `/projects/{address}`
 
-
-# Bidding
+## Bidding
 
 ### placeBid
 
 Input: JSON
+
 ```python
 class PlaceBidInput(BaseModel):
     project_id: str
@@ -111,6 +120,7 @@ class PlaceBidInput(BaseModel):
 ```
 
 Output: Notice
+
 ```python
 class PlaceBidOutput(BaseModel):
     project_id: str
@@ -118,17 +128,18 @@ class PlaceBidOutput(BaseModel):
     value: int
     rate: float
 ```
-# Subscription
 
+## Subscription
 
-# Wallet
+## Wallet
 
 ### getBalance (inspect)
 
 Path: `/balance/{address}`
 
 Output:
-```
+
+```json
 {
     "ether": "<value, abi enconded uint256>",
     "erc20": {
@@ -145,4 +156,3 @@ Output:
 ### ERC20_Deposit (advance)
 
 ### ERC20_Withdraw (advance)
-
