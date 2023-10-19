@@ -10,5 +10,7 @@ struct TribeData {
     string name;
     uint256 price;
     address creator;
+    address cartesiDapp;
     address parityRouter;
+    address etherPortal;
 }
