@@ -12,6 +12,8 @@ Components:
 - **Tribe Member** - Wallet of the Tribe member (who bought access to the project)
 - **Supporter Wallets** - Wallet of the Supporter of a project
 
+![Interactions](interactions.png)
+
 ```mermaid
 sequenceDiagram
     participant Frontend
