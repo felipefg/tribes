@@ -3,7 +3,7 @@
 @contracts/=src/contracts/
 @chainlink/contracts/=lib/chainlink/contracts/src/v0.8/
 @cartesi/utils/=lib/rollups/onchain/rollups-arbitration/lib/solidity-util/contracts/
-@cartesi/contracts/=lib/rollups/onchain/rollups/contracts/
+@cartesi/contracts/=lib/rollups-contracts/onchain/rollups/contracts/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/ 
 @openzeppelin/upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
 ds-test/=lib/forge-std/lib/ds-test/src/

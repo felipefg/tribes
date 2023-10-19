@@ -8,5 +8,7 @@ pragma solidity 0.8.20;
  */
 struct SupportersData {
     string name;
+    address creator;
+    address inputBox;
     address cartesiDapp;
 }
