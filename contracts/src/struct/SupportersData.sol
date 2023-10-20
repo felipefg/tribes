@@ -7,8 +7,8 @@ pragma solidity 0.8.20;
  * @dev SupportersData struct store supporterData data
  */
 struct SupportersData {
+    string cid;
     string name;
-    address creator;
     address inputBox;
     address cartesiDapp;
 }
