@@ -7,10 +7,11 @@ pragma solidity 0.8.20;
  * @dev TribeData struct store tribeData data
  */
 struct TribeData {
+    string cid;
     string name;
-    uint256 price;
     address creator;
+    address supporters;
+    address etherPortal;
     address cartesiDapp;
     address parityRouter;
-    address etherPortal;
 }
