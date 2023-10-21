@@ -8,14 +8,23 @@ each one is called, its expected inputs and outputs.
 ### createProject (advance)
 
 - Sender: TribesFactory contract
-- Input: ABI Encoded. with the following schema:
+- Input: ABI Packed Encoded. with the following schema:
 
 ```python
 class CreateProjectInput(BaseModel):
+    creator_address: abi.Address
+    tribe_address: abi.Address
+    supporter_address: abi.Address
+    project_data: bytes #
+```
+
+And `project_data` will be the bytes corresponding to a JSON with the following
+schema:
+
+```python
+class CreateProjectData(BaseModel):
     name: str
     description: str
-    tribes_addr: abi.Address # Address of corresponding Tribe contract
-    supporter_addr: abi.Address # Address of corresponding Supporter contract
     max_revenue_share: int
     min_viable_value: int
     pledged_value: int
@@ -23,7 +32,6 @@ class CreateProjectInput(BaseModel):
     minimum_bid: int
     regular_price: int
     presale_price: int
-    state: enum # Financing, Production, Sales
 ```
 
 Output: Notice:
