@@ -30,7 +30,7 @@ define set_cartesi
 endef
 
 env: .env.tmpl
-	cp .env.tmpl .env
+	cp env.tmpl .env
 
 deploy:
 	@echo "Deploying Tribes Factory..."
