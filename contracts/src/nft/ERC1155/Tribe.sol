@@ -102,7 +102,7 @@ contract Tribe is ERC1155, AccessControl, ERC1155Burnable, ERC1155Pausable, ERC1
     }
 
     function mint(uint256 amount) public payable returns (bool) {
-        if ((msg.value / 1e8) * _quoteParity() < _getPrice()) {
+        if ((msg.value / 1e8) * _quoteParity() == _getPrice() * amount) {
             revert MintFailed(msg.sender, msg.value);
         } else {
             uint256 id = 0;
@@ -126,7 +126,7 @@ contract Tribe is ERC1155, AccessControl, ERC1155Burnable, ERC1155Pausable, ERC1
         address affiliate
     ) public payable returns (bool) {
         if (
-            (msg.value / 1e8) * _quoteParity() < _getPrice() &&
+            (msg.value / 1e8) * _quoteParity() < _getPrice() * amount &&
             !_hasAffiliation(affiliate)
         ) {
             revert MintFailed(msg.sender, msg.value);
