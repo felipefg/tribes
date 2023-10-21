@@ -62,8 +62,8 @@ const Courses = () => {
             </div>
           </div>
           <div className="flex px-20 pt-4 gap-2">
-            <button className={`px-4 py-1 text-whiteBackground rounded-full ${buttonClicked === 'normal-sale' ? 'bg-black' : 'border text-black'}`} onClick={() => setButtonClicked("normal-sale")}>Normal-sale</button>
-            <button className={`px-4 py-1 text-whiteBackground rounded-full ${buttonClicked === 'pre-sale' ? 'bg-black' : 'border text-black'}`}  onClick={() => setButtonClicked("pre-sale")}>Pre-sale</button>
+            <button className={`px-4 py-1 rounded-full ${buttonClicked == 'normal-sale' ? 'bg-black text-whiteBackground' : 'border text-black '}`} onClick={() => setButtonClicked("normal-sale")}>Normal-sale</button>
+            <button className={`px-4 py-1 rounded-full ${buttonClicked == 'pre-sale' ? 'bg-black text-whiteBackground' : 'border text-black bg-whiteBackground'}`}  onClick={() => setButtonClicked("pre-sale")}>Pre-sale</button>
           </div>
           <div className="px-20 py-8 grid grid-cols-3 gap-16">
             {filteredItems.map((item, index) => (

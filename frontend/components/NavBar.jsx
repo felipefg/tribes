@@ -1,12 +1,14 @@
 "use client";
 import { useState } from "react";
 import { useMetaMask } from "../contexts/WalletContext";
+import { usePathname } from 'next/navigation';
 import Image from "next/image";
 import Link from "next/link";
 import logo from '../public/logo.svg'
 
 
 export function NavBar() {
+  const path = usePathname();
   const { account, connectMetaMask, disconnectMetaMask } = useMetaMask();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -22,13 +24,13 @@ export function NavBar() {
         </Link>
       </div>
       <div className="flex justify-between w-1/3">
-        <Link href='/' className="hover:scale-95 duration-300 ease-in-out">
+        <Link href='/launchpad' className={`hover:scale-95 duration-300 ease-in-out ${path == '/launchpad' ? "bg-purple px-3 rounded-lg" : ""}`}>
             Launchpad
         </Link>
-        <Link href='/' className="hover:scale-95 duration-300 ease-in-out">
+        <Link href='/courses' className={`hover:scale-95 duration-300 ease-in-out ${path == '/courses' ? "bg-purple px-3 rounded-lg" : ""}`}>
             Courses
         </Link>
-        <Link href='/' className="hover:scale-95 duration-300 ease-in-out">
+        <Link href='/profile' className={`hover:scale-95 duration-300 ease-in-out ${path == '/profile' ? "bg-purple px-3 rounded-lg" : ""}`}>
             Profile
         </Link>
       </div>
@@ -40,7 +42,7 @@ export function NavBar() {
               onClick={toggleDropdown}
             >
               <p>
-                {account.substring(0, 5) + "..." + account.substring(37, 42)}{" "}
+                {account.substring(0, 6) + "..." + account.substring(37, 42)}{" "}
               </p>
             </button>
             {isDropdownOpen && (
