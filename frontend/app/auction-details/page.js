@@ -1,13 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useAuctionContext } from "@/contexts/AuctionContext";
+import { useRouter } from "next/navigation";
 import gradient4 from "@/assets/gradient4.svg";
 import gradient6 from "@/assets/gradient6.svg";
 import Image from "next/image";
 
 const AuctionDetails = () => {
   const { selectedAuction } = useAuctionContext();
-  console.log(selectedAuction);
+  console.log(selectedAuction)
+  const router = useRouter();
+
+  useEffect(() => {
+    if (selectedAuction == null){
+      console.log("teste")
+      router.push("/launchpad");
+    }
+  }, [selectedAuction])
 
   return (
     <div className="w-full">
@@ -21,7 +30,7 @@ const AuctionDetails = () => {
       <div className="flex justify-between px-20 py-4 z-10 relative">
         <div className="w-1/2">
         <div className="relative z-10 pt-16">
-          <h1 className="text-4xl font-medium">Learn Python on Web3</h1>
+          <h1 className="text-4xl font-medium">{selectedAuction?.title}</h1>
           <p className="font-medium pt-2 text-lg">
             Created by 0x00000000000000
           </p>
@@ -84,3 +93,24 @@ const AuctionDetails = () => {
   );
 };
 export default AuctionDetails;
+
+// export async function getServerSideProps(context) {
+//   // Coloque aqui a lógica para buscar o `selectedAuction`
+//   // Exemplo: const selectedAuction = await fetchAuctionDetails();
+
+//   if (!selectedAuction) {
+//     // Redirecione para a página inicial se o `selectedAuction` não existir
+//     return {
+//       redirect: {
+//         destination: '/',
+//         permanent: false,
+//       },
+//     };
+//   }
+
+//   return {
+//     props: {
+//       selectedAuction,
+//     },
+//   };
+// }
