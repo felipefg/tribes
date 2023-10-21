@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Tribe} from "@nft/ERC1155/Tribe.sol";
-import {Supporters} from "@nft/ERC1155/Supporters.sol";
+import {Tribe} from "@contracts/nft/ERC1155/Tribe.sol";
 import {TribesFactoryData} from "@struct/TribesFactoryData.sol";
+import {Supporters} from "@contracts/nft/ERC1155/Supporters.sol";
 import {IInputBox} from "@cartesi/contracts/inputs/IInputBox.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract TribesFactory {
+contract TribesFactory is AccessControl {
     TribesFactoryData public tribesFactoryData;
 
     event TribeCreated(
@@ -17,6 +18,8 @@ contract TribesFactory {
 
     error TribeFactoryFailed(address sender);
 
+    bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
+
     constructor(
         address _inputBox,
         address _etherPortal,
@@ -25,9 +28,11 @@ contract TribesFactory {
         tribesFactoryData.inputBox = _inputBox;
         tribesFactoryData.etherPortal = _etherPortal;
         tribesFactoryData.parityRouter = _parityRouter;
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(MANAGER_ROLE, msg.sender);
     }
 
-    function setCartesiDapp(address _cartesiDapp) public returns (bool) {
+    function setCartesiDapp(address _cartesiDapp) public onlyRole(MANAGER_ROLE) returns (bool) {
         tribesFactoryData.cartesiDapp = _cartesiDapp;
         return true;
     }
@@ -37,7 +42,7 @@ contract TribesFactory {
         address etherPortal,
         address parityRouter,
         address inputBox,
-        string memory input
+        bytes memory input
     ) public returns (address tribe, address supporters) {
         supporters = address(
             new Supporters(cid, inputBox, tribesFactoryData.cartesiDapp)
@@ -63,5 +68,6 @@ contract TribesFactory {
             _input
         );
         emit TribeCreated(msg.sender, tribe, supporters);
+        return (tribe, supporters);
     }
 }
