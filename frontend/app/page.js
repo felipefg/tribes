@@ -38,7 +38,7 @@ export default function Home() {
           
         </div>
       </div>
-      <div className='bg-purple w-full py-8 relative px-4'>
+      <div className='bg-purple w-full py-12 relative px-4 h-full'>
         <div className='w-2/3 px-20 py-8'>
           <h1 className='text-4xl font-medium pb-8'>Tribes addresses creator´s pain points</h1>
           <p className='w-[80%] py-2 text-lg'>Tribes aims to address creator´s main pain points, by connecting investors, ecosystem users, ecosystem partners & creators in a dynamic relationship with value accrual and sharing</p>
@@ -46,7 +46,7 @@ export default function Home() {
           <p className='w-[80%] py-2 text-lg'>2 - Economy enabler: Through a creative engagement mechanism, we truly connect creator´s with its community</p>
           <p className='w-[80%] py-2 text-lg'>3 - Community Oriented: Using blockchain learn how to identify your community archetypes and promote a tailor made experience, elevating the rapport across your community</p>
         </div>
-        <Image src={gradient3} width={650} className='absolute right-24 -top-32 z-0'/>
+        <Image src={gradient3} width={600} className='absolute right-24 -top-24 z-0'/>
       </div>
     </div>
   )
