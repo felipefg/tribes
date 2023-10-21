@@ -3,6 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import gradient4 from "@/assets/gradient4.svg";
 import magnifier from "@/assets/magnifier.svg";
+import { CardAuction } from "@/components/CardAuction";
 
 const Launchpad = () => {
   const [filter, setFilter] = useState("");
@@ -53,7 +54,7 @@ const Launchpad = () => {
       </div>
       <div className="mt-12">
         <div className="relative px-20 flex justify-between">
-          <h1 className="text-3xl font-medium">Open auctions</h1>
+          <h1 className="text-3xl font-medium">Fundraising</h1>
           <div className="flex gap-3">
             <input
               type="text"
@@ -67,18 +68,11 @@ const Launchpad = () => {
         </div>
         <div className="px-20 py-8 grid grid-cols-4 gap-16">
           {filteredItems.map((item, index) => (
-            <div
+            < CardAuction 
               key={index}
-              className="border rounded-tl-xl rounded-tr-[48px] rounded-bl-[48px] rounded-br-xl py-8 px-2"
-            >
-              <h1 className="font-semibold text-xl pb-6 px-4">{item.title}</h1>
-              <p className="text-sm py-2 px-4">{item.description}</p>
-              <div className="flex justify-center mt-4">
-                <button className="bg-black px-16 py-1 rounded-full text-whiteBackground text-sm">
-                  See more
-                </button>
-              </div>
-            </div>
+              title={item.title}
+              description={item.description}
+              />
           ))}
         </div>
       </div>

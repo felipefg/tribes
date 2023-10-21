@@ -31,8 +31,8 @@ const Profile = () => {
         <div className="divide-y divide-purple px-20">
             <div className="flex gap-20 z-10 relative pt-12 pb-6">
                 <button className={`rounded-lg px-2 ${buttonClicked === 'purchased-courses' ? 'bg-purple' : ''}`}onClick={() => setButtonClicked("purchased-courses")}>Purchased courses</button>
-                <button className={`rounded-lg px-2 ${buttonClicked === 'bids-made' ? 'bg-purple' : ''}`}onClick={() => setButtonClicked("bids-made")}>Bids made</button>
-                <button className={`rounded-lg px-2 ${buttonClicked === 'courses-created' ? 'bg-purple' : ''}`}onClick={() => setButtonClicked("courses-created")}>Courses created</button>
+                <button className={`rounded-lg px-2 ${buttonClicked === 'bids-made' ? 'bg-purple' : ''}`}onClick={() => setButtonClicked("bids-made")}>My bids</button>
+                <button className={`rounded-lg px-2 ${buttonClicked === 'courses-created' ? 'bg-purple' : ''}`}onClick={() => setButtonClicked("courses-created")}>Creator's dashboard</button>
             </div>
             <div>
 
