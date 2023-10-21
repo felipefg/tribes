@@ -1,9 +1,10 @@
 @script/=script/
 @struct/=src/struct/
-@contracts/=src/contracts/
-@nft/=src/nft
+@contracts/=src/
+@mock/=test/mock
+@script/=script
 @chainlink/contracts/=lib/chainlink/contracts/src/v0.8/
-@cartesi/utils/=lib/rollups/onchain/rollups-arbitration/lib/solidity-util/contracts/
+@cartesi/util/=lib/rollups-contracts/onchain/rollups-arbitration/lib/solidity-util/
 @cartesi/contracts/=lib/rollups-contracts/onchain/rollups/contracts/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/ 
 @openzeppelin/upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
