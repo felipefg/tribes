@@ -7,6 +7,11 @@ import {Supporters} from "@contracts/nft/ERC1155/Supporters.sol";
 import {IInputBox} from "@cartesi/contracts/inputs/IInputBox.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
+
+/**
+ * @title Tribes Factory Contract
+ * @dev The TribesFactory contract, an AccessControl contract, creates Tribe and Supporters contracts, sending project information to the Cartesi DApp via InputBox.
+ */
 contract TribesFactory is AccessControl {
     TribesFactoryData public tribesFactoryData;
 
@@ -32,11 +37,30 @@ contract TribesFactory is AccessControl {
         _grantRole(MANAGER_ROLE, msg.sender);
     }
 
-    function setCartesiDapp(address _cartesiDapp) public onlyRole(MANAGER_ROLE) returns (bool) {
+    /**
+     * @notice Set the Cartesi DApp address
+     * @param _cartesiDapp  Address of the Cartesi DApp
+     * @return true If the operation was successful
+     * @dev This function sets the Cartesi DApp address and only can be called by the Manager
+     */
+    function setCartesiDapp(
+        address _cartesiDapp
+    ) public onlyRole(MANAGER_ROLE) returns (bool) {
         tribesFactoryData.cartesiDapp = _cartesiDapp;
         return true;
     }
 
+    /**
+     * @notice Creates a new Tribe with associated Supporters contract.
+     * @param cid Content ID of the project.
+     * @param etherPortal Address of the EtherPortal.
+     * @param parityRouter Address of the ParityRouter.
+     * @param inputBox Address of the InputBox.
+     * @param input Additional input data.
+     * @return tribe The address of the created Tribe contract.
+     * @return supporters The address of the associated Supporters contract.
+     * @dev This function initializes a Tribe and its associated Supporters contract, and adds relevant information to the InputBox and can be called by any creator. Its sends project information to the Cartesi DApp via InputBox.
+     */
     function createTribe(
         string memory cid,
         address etherPortal,

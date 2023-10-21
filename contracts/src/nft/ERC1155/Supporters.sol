@@ -9,6 +9,11 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ERC1155Supply} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import {ERC1155Burnable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 
+
+/**
+ * @title Supporters Contract
+ * @dev The Supporters contract is an ERC1155 contract that manage roles and mint tokens for Financial Supporters and Affiliates.
+ */
 contract Supporters is ERC1155, AccessControl, ERC1155Burnable, ERC1155Supply {
     SupportersData public supportersData;
 
@@ -29,17 +34,30 @@ contract Supporters is ERC1155, AccessControl, ERC1155Burnable, ERC1155Supply {
         _grantRole(CARTESI_DAPP, _cartesiDapp);
     }
 
+    /**
+     * @notice Mint a new token for Financial Supporters or Affiliates
+     * @param id The id of the token to mint
+     * @param amount The amount of tokens to mint
+     * @param account The address to mint the tokens to
+     * @return true if the operation was successful
+     * @dev This function mints a new token for Financial Supporters or Affiliates and only can be called by the Cartesi DApp
+     */
     function mint(
         uint256 id,
         uint256 amount,
         address account
-    ) public onlyRole(CARTESI_DAPP) returns (bool) {
+    ) external onlyRole(CARTESI_DAPP) returns (bool) {
         bytes memory data = abi.encodePacked(id);
         _mint(account, id, amount, data);
         emit Mint(account, id);
         return true;
     }
 
+    /**
+     * @notice Claim affiliation
+     * @return true if the operation was successful
+     * @dev This function claims affiliation and can be called by any address interested in the project. It sends the function signature and address of the caller to the InputBox.
+     */
     function claimAffiliation() public returns (bool) {
         bytes memory _input = abi.encodePacked(msg.sig, msg.sender);
         IInputBox(supportersData.inputBox).addInput(
@@ -50,6 +68,12 @@ contract Supporters is ERC1155, AccessControl, ERC1155Burnable, ERC1155Supply {
         return true;
     }
 
+    /**
+     * @notice Get the URI of a token
+     * @param id The id of the token
+     * @return The URI of the token
+     * @dev This function returns the URI of a token and can be called by any address
+     */
     function uri(uint256 id) public view override returns (string memory) {
         return
             string.concat(
