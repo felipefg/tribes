@@ -40,7 +40,7 @@ contract SupportersTest is Test {
         assertTrue(success);
     }
 
-    function testUriSFinancialSupporter() public {
+    function testUriFinancialSupporter() public {
         string memory uri = supporters.uri(1);
 
         // Convert the string to bytes before comparison

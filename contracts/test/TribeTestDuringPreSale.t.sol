@@ -30,6 +30,13 @@ contract TribeTest is Test {
         inputBox = new InputBox();
         etherPortal = new EtherPortal(inputBox);
         supporters = new Supporters(CID, address(inputBox), cartesiDappTest);
+
+        vm.prank(affiliate);
+        supporters.claimAffiliation();
+
+        vm.prank(cartesiDappTest);
+        supporters.mint(2, 1, affiliate);
+
         tribe = new Tribe(
             CID,
             cartesiDappTest,
@@ -37,20 +44,45 @@ contract TribeTest is Test {
             address(supporters),
             address(parityRouter)
         );
+
+        vm.prank(cartesiDappTest);
+        tribe.launchStrategy(
+            block.timestamp + 1 days,
+            block.timestamp + 2 days,
+            2000,
+            block.timestamp + 4 days,
+            block.timestamp + 5 days,
+            3000
+        );
     }
 
-
-    // function testMintDuringPreSale() public payable {
-    //     hoax(user,  200);
-    //     skip(1 days);
-    //     bool success = tribe.mint{value: 200}(1);
-    //     console.log(block.timestamp);
-    //     assertTrue(success);
-    // }
-
-    function testClaimAffiliation() public {
-        vm.prank(affiliate);
-        bool success = supporters.claimAffiliation();
+    function testMintDuringPreSale() public payable {
+        vm.warp(block.timestamp + 1 days + 3600);
+        hoax(user, 1 ether);
+        bool success = tribe.mint{value: 1 ether}(1);
         assertTrue(success);
+    }
+
+    function testMintWithAffiliateDuringPreSale() public payable {
+        vm.warp(block.timestamp + 1 days + 3600);
+        hoax(user, 1 ether);
+        bool success = tribe.mintWithAffiliate{value: 1 ether}(1, affiliate);
+        assertTrue(success);
+    }
+
+    function testUriEndUser() public {
+        string memory uri = tribe.uri(0);
+
+        // Convert the string to bytes before comparison
+        bytes memory uriBytes = bytes(uri);
+        bytes memory expectedBytes = bytes(
+            "https://ipfs.io/ipfs/QmQp9iagQS9uEQPV7hg5YGwWmCXxAs2ApyBCkpcu9ZAK6k/0.json"
+        );
+
+        assertEq(uriBytes.length, expectedBytes.length);
+        assertTrue(
+            keccak256(abi.encodePacked(uriBytes)) ==
+                keccak256(abi.encodePacked(expectedBytes))
+        );
     }
 }
