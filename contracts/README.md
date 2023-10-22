@@ -23,7 +23,7 @@ Welcome to the project documentation! This repository contains essential documen
     $ cat lib/rollups-contracts/onchain/rollups/contracts/dapp/CartesiDApp.sol
     ```
 
-    - Change line 14 to ```import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";``` instead ```import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";```.
+    - Change line 14 to ```import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";``` instead ```import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";```.
 
 ### 2.1 Deploy on testnet 🌐
 
@@ -45,7 +45,7 @@ Welcome to the project documentation! This repository contains essential documen
 - To inform the contract of the Cartesi DApp's deployed address on the respective network, run the following command:
 
     ```bash
-    $ make cartesi contract="<TRIBES_FACTORY_CONTRACT_ADDRESS>" dapp="<CARTESI_DAPP>" CONFIG="--network sepolia"
+    $ make cartesi contract="<TRIBES_FACTORY_CONTRACT_ADDRESS>" dapp="<CARTESI_DAPP>" CONFIG="--network <NETWORK_NAME>"
     ```
     
 ## 3. System Architecture 📐
