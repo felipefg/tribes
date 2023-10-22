@@ -9,7 +9,7 @@ function PopupProjectForm() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState(""); 
   const [creator_rate_pct, setCreatorRatePct] = useState(""); 
-  const [affiliate_rate_pct, setCAffiliateRatePct] = useState("");
+  const [affiliate_rate_pct, setAffiliateRatePct] = useState("");
   const [min_viable_value, setMinViableValue] = useState("");
   const [pledged_value, setPledgedValue] = useState("");
   const [auction_end_time, setAuctionEndTime] = useState("");
@@ -26,7 +26,7 @@ function PopupProjectForm() {
   const initializeContract = async () => {
     try {
       if (typeof window.ethereum !== "undefined") {
-        const contractAddress = "0x6D2822a3B3c7aF2437Fd7fA2bF83A18381e606F0";
+        const contractAddress = "0xd4422b65a548bf3c17a19ee1d6cf6748b2ca4653";
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
 
@@ -66,6 +66,7 @@ function PopupProjectForm() {
 
       const selected_sale_end_time = new Date(sale_end_time);
       const sale_end_time_timeStamp = Math.floor(selected_sale_end_time.getTime() / 1000)
+      
 
       const jsonData = {
         name: name, 

@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ethers } from "ethers";
+import axios from "axios";
 import Image from "next/image";
 import gradient4 from "@/assets/gradient4.svg";
 import magnifier from "@/assets/magnifier.svg";
@@ -7,33 +9,30 @@ import { CardAuction } from "@/components/CardAuction";
 
 const Launchpad = () => {
   const [filter, setFilter] = useState("");
+  const [responseApi, setResponseApi] = useState([])
 
-  const itens = [
-    {
-      title: "Learn Python on Web3",
-      description:
-        "Learn how to use your Python to develop decentralized applications on Web 3.0",
-    },
-    {
-      title: "Front-end for Web3",
-      description:
-        "Learn with Web-Manu all tricks to build the right front end for Web 3.0 applications.",
-    },
-    {
-      title: "Intro to Cartesi Gaming",
-      description:
-        "Learn how to develop and deploy your web game using Cartesi gaming infrastructure",
-    },
-    {
-      title: "Learn Go on Web 3.0",
-      description:
-        "Learn how to use Go, one of the most popular programming languages, on Web 3.0",
-    },
-  ];
 
-  const filteredItems = itens.filter((item) =>
-    item.title.toLowerCase().includes(filter.toLowerCase())
-  );
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      try {
+        const response = await axios.get("http://173.230.140.91:8080/inspect/project");
+        const data = response.data;
+        const payload = ethers.toUtf8String(data.reports[0].payload)
+        const payloadArray = JSON.parse(payload);
+        setResponseApi(payloadArray)
+        console.log(payloadArray)
+
+        return data;
+      } catch (error) {
+        console.error("Erro na solicitação da API:", error);
+        throw error;
+      }
+    }, 5000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
   return (
     <div className="w-full">
@@ -68,11 +67,19 @@ const Launchpad = () => {
           </div>
         </div>
         <div className="px-20 py-8 grid grid-cols-4 gap-16">
-          {filteredItems.map((item, index) => (
+          {responseApi.map((item, index) => (
             < CardAuction 
               key={index}
-              title={item.title}
+              project_id={item.project_id}
+              name={item.name}
               description={item.description}
+              creator_address={item.creator_address}
+              minimum_bid={item.minimum_bid}
+              min_viable_value={item.min_viable_value}
+              state={item.state}
+              auction_end_time={item.auction_end_time}
+
+
               />
           ))}
         </div>

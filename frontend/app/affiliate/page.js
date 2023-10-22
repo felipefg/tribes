@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import axios from "axios";
 import Image from "next/image";
 import gradient5 from "@/assets/gradient5.svg";
 import magnifier from "@/assets/magnifier.svg";
@@ -12,37 +13,12 @@ const Courses = () => {
   const [filter, setFilter] = useState("");
   const [buttonClicked, setButtonClicked] = useState('pre-sale');
   const [contract, setContract] = useState('')
+  const [responseApi, setResponseApi] = useState([])
 
-  const itens = [
-    { 
-      title: "Learn Python on Web3",
-      description:
-        "Learn how to use your Python to develop decentralized applications on Web 3.0",
-      status: "Normal-sale"
-    },
-    {
-      title: "Front-end for Web3",
-      description:
-        "Learn with Web-Manu all tricks to build the right front end for Web 3.0 applications.",
-        status: "Pre-sale"
-    },
-    {
-      title: "Intro to Cartesi Gaming",
-      description:
-        "Learn how to develop and deploy your web game using Cartesi gaming infrastructure",
-        status: "Pre-sale"
-    },
-    {
-      title: "Learn Go on Web 3.0",
-      description:
-        "Learn how to use Go, one of the most popular programming languages, on Web 3.0",
-        status: "Pre-sale"
-    },
-  ];
 
-  const filteredItems = itens
-    .filter((item) => item.title.toLowerCase().includes(filter.toLowerCase()))
-    .filter((item) => item.status.toLowerCase() === buttonClicked)
+  // const filteredItems = itens
+  //   .filter((item) => item.title.toLowerCase().includes(filter.toLowerCase()))
+  //   .filter((item) => item.status.toLowerCase() === buttonClicked)
 
 
     const initializeContract = async () => {
@@ -76,7 +52,27 @@ const Courses = () => {
     };
   
     useEffect(() => {
+      const intervalId = setInterval(async () => {
+        try {
+          const response = await axios.get("http://173.230.140.91:8080/inspect/project");
+          const data = response.data;
+          const payload = ethers.toUtf8String(data.reports[0].payload)
+          const payloadArray = JSON.parse(payload);
+          setResponseApi(payloadArray)
+          console.log(payloadArray)
+
+  
+          return data;
+        } catch (error) {
+          console.error("Erro na solicitação da API:", error);
+          throw error;
+        }
+      }, 5000);
+      
       initializeContract();
+      return () => {
+        clearInterval(intervalId);
+      };
     }, []);
 
     const notify = () => toast.success('Bid successfully placed!', {
@@ -130,19 +126,19 @@ const Courses = () => {
             <button className={`px-4 py-1 rounded-full ${buttonClicked == 'pre-sale' ? 'bg-black text-whiteBackground' : 'border text-black bg-whiteBackground'}`}  onClick={() => setButtonClicked("pre-sale")}>Pre-sale</button>
           </div>
           <div className="px-20 py-8 grid grid-cols-3 gap-16">
-            {filteredItems.map((item, index) => (
+            {responseApi.map((item, index) => (
               <div
                 key={index}
                 className="border rounded-tl-xl rounded-tr-[48px] rounded-bl-[48px] rounded-br-xl py-8 px-2"
               >
                 <p className="px-4 text-sm">{item.status}</p>
                 <h1 className="font-semibold text-xl pb-6 px-4">
-                  {item.title}
+                  {item.name}
                 </h1>
                 <p className="text-sm py-2 px-4">{item.description}</p>
                 <div className="flex justify-center mt-4">
                   <button 
-                  onClick={handleAffiliate}
+                  onClick={() => handleAffiliate(item.supporter_address)}
                   className="bg-black px-16 py-1 rounded-full text-whiteBackground text-sm" >
                      Affiliate
                   </button>
