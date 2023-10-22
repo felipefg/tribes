@@ -7,7 +7,6 @@ import {Supporters} from "@contracts/nft/ERC1155/Supporters.sol";
 import {IInputBox} from "@cartesi/contracts/inputs/IInputBox.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
-
 /**
  * @title Tribes Factory Contract
  * @dev The TribesFactory contract, an AccessControl contract, creates Tribe and Supporters contracts, sending project information to the Cartesi DApp via InputBox.
@@ -20,6 +19,8 @@ contract TribesFactory is AccessControl {
         address indexed tribe,
         address indexed supporters
     );
+
+    event Heartbeat(uint256 timestamp);
 
     error TribeFactoryFailed(address sender);
 
@@ -51,11 +52,23 @@ contract TribesFactory is AccessControl {
     }
 
     /**
+     * @notice Sends a heartbeat to the Cartesi DApp
+     * @return true If the operation was successful
+     * @dev This function sends a heartbeat to the Cartesi DApp and can be called by any address. It sends the function signature and timestamp to the Cartesi DApp via InputBox. Integration with Chainlink Automation is required.
+     */
+    function heartbeat() external returns (bool) {
+        bytes memory _input = abi.encodePacked(msg.sig);
+        IInputBox(tribesFactoryData.inputBox).addInput(
+            tribesFactoryData.cartesiDapp,
+            _input
+        );
+        emit Heartbeat(block.timestamp);
+        return true;
+    }
+
+    /**
      * @notice Creates a new Tribe with associated Supporters contract.
      * @param cid Content ID of the project.
-     * @param etherPortal Address of the EtherPortal.
-     * @param parityRouter Address of the ParityRouter.
-     * @param inputBox Address of the InputBox.
      * @param input Additional input data.
      * @return tribe The address of the created Tribe contract.
      * @return supporters The address of the associated Supporters contract.
@@ -63,21 +76,22 @@ contract TribesFactory is AccessControl {
      */
     function createTribe(
         string memory cid,
-        address etherPortal,
-        address parityRouter,
-        address inputBox,
         bytes memory input
     ) public returns (address tribe, address supporters) {
         supporters = address(
-            new Supporters(cid, inputBox, tribesFactoryData.cartesiDapp)
+            new Supporters(
+                cid,
+                tribesFactoryData.inputBox,
+                tribesFactoryData.cartesiDapp
+            )
         );
         tribe = address(
             new Tribe(
                 cid,
                 tribesFactoryData.cartesiDapp,
-                etherPortal,
+                tribesFactoryData.etherPortal,
                 supporters,
-                parityRouter
+                tribesFactoryData.parityRouter
             )
         );
         bytes memory _input = abi.encodePacked(

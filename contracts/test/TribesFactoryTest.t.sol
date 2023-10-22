@@ -45,9 +45,6 @@ contract TribesFactoryTest is Test {
         vm.prank(creator);
         (address tribe, address supporters) = tribesFactory.createTribe(
             CID,
-            address(etherPortal),
-            address(parityRouter),
-            address(inputBox),
             abi.encodePacked(msg.sig, abi.encode(creator))
         );
         assertTrue(tribe != address(0));
