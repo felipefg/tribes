@@ -1,6 +1,6 @@
 from collections.abc import Iterable
 from itertools import accumulate, starmap, chain
-from typing import NamedTuple
+from typing import NamedTuple, Any
 from enum import Enum
 
 class Auction(NamedTuple):
@@ -16,11 +16,13 @@ class Bid(NamedTuple):
     volume: float
     price: float
     bidder: str
+    meta: Any
 
 class BidOutput(NamedTuple):
     bidder: str
     amount_sent: float
     amount_fullfiled: float
+    meta: Any
 
 class AuctionOutput(NamedTuple):
     bid_outputs: Iterable[BidOutput]
@@ -40,8 +42,9 @@ def auction_output(bids: Iterable[Bid], volume_limit: float) -> AuctionOutput:
     sorted_bids = sorted(bids, key = lambda bid: bid.price, reverse = True)
     accumulated_budget = accumulate(sorted_bids, lambda acc, bid: acc-bid.volume, initial=volume_limit) #each bid consumes the auction amount limit.
     def fullfiled_volume(bid, budget):
-        return BidOutput(bid.bidder, bid.volume, max(min(budget,bid.volume), 0))
+        return BidOutput(bid.bidder, bid.volume, max(min(budget,bid.volume), 0), bid.meta)
     outputs = starmap(fullfiled_volume, zip(sorted_bids, accumulated_budget))
+    outputs = list(outputs)
     return AuctionOutput(outputs, sorted_bids)
 
 def auction_price(output: AuctionOutput) -> float:
@@ -58,9 +61,9 @@ def generate_bid_vouchers(output: BidOutput, price: float) -> Iterable[Voucher]:
         voucher_list.append(Voucher(output.bidder, 'eth', TokenOperation.TRANSFER, not_fullfiled))
     if output.amount_fullfiled > 0:
         mint_amount = output.amount_fullfiled//price
-        voucher_list.append(Voucher(output.bidder, 'erc20', TokenOperation.MINT, output.amount_fullfiled))
+        voucher_list.append(Voucher(output.bidder, 'erc20', TokenOperation.MINT, mint_amount))
     return voucher_list
 
 def auction_vouchers(outputs: Iterable[BidOutput], price: float) -> Iterable[Voucher]:
-    return chain(map(lambda output: generate_bid_vouchers(output, price), outputs))
+    return chain(*map(lambda output: generate_bid_vouchers(output, price), outputs))
 
