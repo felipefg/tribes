@@ -9,6 +9,7 @@ from cartesi import (
     ABIRouter,
     URLRouter,
     URLParameters,
+    JSONRouter,
 )
 
 from .config import settings
@@ -17,8 +18,9 @@ from .models import (
     CreateProjectData,
     DepositEtherPayload,
     PlaceBidInput,
+    EndAuctionPayload,
 )
-from . import tribes_db
+from . import tribes_db, vouchers, auction
 
 
 LOGGER = logging.getLogger(__name__)
@@ -27,9 +29,13 @@ dapp = DApp()
 
 abirouter = ABIRouter()
 urlrouter = URLRouter()
+jsonrouter = JSONRouter()
 
 dapp.add_router(abirouter)
 dapp.add_router(urlrouter)
+dapp.add_router(jsonrouter)
+
+DAPP_ADDRESS = None
 
 
 def str2hex(str):
@@ -37,12 +43,20 @@ def str2hex(str):
     return "0x" + str.encode("utf-8").hex()
 
 
+@abirouter.advance(msg_sender=settings.ADDR_RELAY_ADDRESS)
+def address_relay(rollup: Rollup, data: RollupData) -> bool:
+    global DAPP_ADDRESS
+    LOGGER.debug('Got DApp address %s', data.payload)
+    DAPP_ADDRESS = data.payload
+    return True
+
 @abirouter.advance(msg_sender=settings.FACTORY_ADDRESS)
 def create_project(rollup: Rollup, data: RollupData) -> bool:
 
     # Decode data (this should be done by the framework in the future)
     payload = data.bytes_payload()
-    LOGGER.debug("Payload: %s", repr(payload))
+    LOGGER.debug("Payload: %s", payload.hex())
+
     project_input = abi.decode_to_model(data=payload, model=CreateProjectInput)
     project_json = project_input.project_data.decode('utf-8')
     project_data = CreateProjectData.parse_obj(json.loads(project_json))
@@ -53,6 +67,7 @@ def create_project(rollup: Rollup, data: RollupData) -> bool:
         creator_address=project_input.creator_address,
         tribe_address=project_input.tribe_address,
         supporter_address=project_input.supporter_address,
+        timestamp=data.metadata.timestamp,
     )
 
     resp = {
@@ -62,6 +77,18 @@ def create_project(rollup: Rollup, data: RollupData) -> bool:
     }
     resp_payload = str2hex(json.dumps(resp))
     rollup.report(payload=resp_payload)
+
+    rollup.voucher(
+        vouchers.launch_strategy(
+            tribe_address=project.tribe_address,
+            presale_start_time=project.presale_start_time,
+            presale_end_time=project.presale_end_time,
+            presale_price=project.presale_price,
+            sale_start_time=project.sale_start_time,
+            sale_end_time=project.sale_end_time,
+            sale_price=project.sale_price,
+        )
+    )
     return True
 
 
@@ -84,8 +111,10 @@ def deposit_ether(rollup: Rollup, data: RollupData) -> bool:
 
     # Decode data (this should be done by the framework in the future)
     payload = data.bytes_payload()
-    LOGGER.debug("Payload: %s", repr(payload))
-    deposit = abi.decode_to_model(data=payload, model=DepositEtherPayload)
+    LOGGER.debug("Payload: %s", payload.hex())
+
+    deposit = abi.decode_to_model(data=payload, model=DepositEtherPayload,
+                                  packed=True)
 
     try:
         deposit_data = deposit.execLayerData.decode('utf-8')
@@ -98,14 +127,42 @@ def deposit_ether(rollup: Rollup, data: RollupData) -> bool:
     bid = tribes_db.place_bid(
         bid_input=bid_input,
         sender=deposit.sender,
-        value=deposit.depositAmount
+        volume=deposit.depositAmount,
+        timestamp=data.metadata.timestamp,
     )
-    print(bid)
+
     resp = {
         'placeBid': bid.dict()
     }
     resp_payload = str2hex(json.dumps(resp))
     rollup.report(payload=resp_payload)
+    return True
+
+
+@jsonrouter.advance({'op': 'end_auction'})
+def end_auction(rollup: Rollup, data: RollupData) -> bool:
+
+    payload = data.json_payload()
+    payload = EndAuctionPayload(**payload)
+
+    project, vinfos = tribes_db.end_auction(payload.project_id,
+                                            data.metadata.timestamp)
+
+    for vinfo in vinfos:
+
+        if vinfo.operation == auction.TokenOperation.TRANSFER:
+            voucher = vouchers.withdraw_ether(
+                rollup_address=DAPP_ADDRESS,
+                receiver_address=vinfo.to,
+                amount=int(vinfo.amount),
+            )
+        else:
+            voucher = vouchers.mint_supporter_tokens(
+                supporter_contract=project.supporter_address,
+                supporter_address=vinfo.to,
+                amount=int(vinfo.amount),
+            )
+        rollup.voucher(voucher)
     return True
 
 

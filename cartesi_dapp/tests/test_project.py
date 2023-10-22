@@ -1,3 +1,4 @@
+import datetime
 import pytest
 import json
 
@@ -21,6 +22,7 @@ TRIBE_ADDRESS = "0x721be000f6054b5e0e57aaab791015b53f0a18f4"
 SUPPORTER_ADDRESS = "0x50090000689e92897b819e039327479c0b123495"
 
 BIDDER_1_ADDRESS = "0xb1d0010a694ddef7f4bdaac3f04ccacee4d5ffff"
+BIDDER_2_ADDRESS = "0xb1d00203e1e5b2e37817fff15d735fe59c4cffff"
 
 ETH_unit = int(1e18)
 USDC_unit = int(1e6)
@@ -34,14 +36,20 @@ def project_creation_payload() -> str:
         name="Test Project",
         description="This is the **best** project ever!!",
 
-        max_revenue_share=int(0.001 * ETH_unit),
+        max_price_auction=0.5,
         min_viable_value=int(0.05 * ETH_unit),
         pledged_value=int(0.5 * ETH_unit),
         minimum_bid=int(0.001 * ETH_unit),
 
-        regular_price=int(50 * USDC_unit),
+        presale_start_time=int(datetime.datetime(2023, 10, 20).timestamp()),
+        presale_end_time=int(datetime.datetime(2023, 10, 21).timestamp()),
         presale_price=int(20 * USDC_unit),
-        auction_duration_secs=7 * 24 * 60 * 60,  # 7 days
+
+        sale_start_time=int(datetime.datetime(2023, 10, 21).timestamp()),
+        sale_end_time=int(datetime.datetime(2023, 10, 23).timestamp()),
+        sale_price=int(50 * USDC_unit),
+
+        auction_end_time=int(datetime.datetime(2023, 10, 20).timestamp()),
     )
 
     project_data_json = project.json()
@@ -78,6 +86,12 @@ def test_should_create_project(
     report = json.loads(report.decode('utf-8'))
     assert report['status'] == 'ok'
     assert 'project_id' in report
+
+    assert len(dapp_client.rollup.vouchers) == 1
+    assert (
+        dapp_client.rollup.vouchers[0]['data']['payload']['destination']
+        == TRIBE_ADDRESS
+    )
 
 
 @pytest.mark.order(after='test_should_create_project')
@@ -131,26 +145,27 @@ def first_project_id(dapp_client: TestClient) -> str:
 
 
 @pytest.fixture
-def place_bid_payload(first_project_id: str) -> str:
+def bid_1_payload(first_project_id: str) -> str:
     bid = PlaceBidInput(
         project_id=first_project_id,
-        archetype_name='supporter',
-        rate=1000
+        role_id=1,
+        price=0.5,
     )
     deposit = DepositEtherPayload(
         sender=BIDDER_1_ADDRESS,
         depositAmount=0.1 * ETH_unit,
         execLayerData=bid.json().encode('utf-8'),
     )
-    encoded = '0x' + encode_model(deposit).hex()
+    encoded = '0x' + encode_model(deposit, packed=True).hex()
     return encoded
 
 
 @pytest.mark.order(after='test_should_create_project')
-def test_should_create_bid(dapp_client: TestClient, place_bid_payload: str):
+def test_should_create_bid(dapp_client: TestClient, bid_1_payload: str):
 
-    dapp_client.send_advance(hex_payload=place_bid_payload,
-                             msg_sender=settings.ETHER_PORTAL_ADDRESS)
+    dapp_client.send_advance(hex_payload=bid_1_payload,
+                             msg_sender=settings.ETHER_PORTAL_ADDRESS,
+                             timestamp=5 * 24 * 60 * 60)
 
     assert dapp_client.rollup.status
 
@@ -159,3 +174,19 @@ def test_should_create_bid(dapp_client: TestClient, place_bid_payload: str):
     report = json.loads(report.decode('utf-8'))
     assert isinstance(report, dict)
     assert report['placeBid']['bidder'] == BIDDER_1_ADDRESS
+
+
+@pytest.mark.order(after='test_should_create_bid')
+def test_should_end_auction(dapp_client: TestClient, first_project_id: str):
+    req = {
+        'op': 'end_auction',
+        'project_id': first_project_id
+    }
+    req_payload = '0x' + json.dumps(req).encode('ascii').hex()
+    dapp_client.send_advance(
+        hex_payload=req_payload,
+        timestamp=int(datetime.datetime(2023, 10, 20).timestamp())
+    )
+
+    assert dapp_client.rollup.status
+    assert len(dapp_client.rollup.vouchers) > 0

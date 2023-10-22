@@ -26,26 +26,37 @@ class ProjectStates(str, Enum):
 class CreateProjectData(BaseModel):
     name: str
     description: str
-    max_revenue_share: int
+    max_price_auction: int
     min_viable_value: int
     pledged_value: int
-    auction_duration_secs: int
+    auction_end_time: int
     minimum_bid: int
-    regular_price: int
+    presale_start_time: int
+    presale_end_time: int
     presale_price: int
+    sale_start_time: int
+    sale_end_time: int
+    sale_price: int
 
 
 class Project(BaseModel):
     project_id: str = Field(default_factory=lambda: str(uuid4()))
     name: str
     description: str
-    max_revenue_share: int
+    created_at: int
+    max_price_auction: int
+    final_price_auction: int | None = None
     min_viable_value: int
     pledged_value: int
-    auction_duration_secs: int
+    auction_end_time: int
     minimum_bid: int
-    regular_price: int
+    presale_start_time: int
+    presale_end_time: int
     presale_price: int
+    sale_start_time: int
+    sale_end_time: int
+    sale_price: int
+    presales: bool = True
     state: ProjectStates = ProjectStates.financing
     creator_address: abi.Address
     tribe_address: abi.Address
@@ -69,19 +80,28 @@ class DepositERC20Payload(BaseModel):
 class PlaceBidInput(BaseModel):
     op: Literal['place_bid'] = 'place_bid'
     project_id: str
-    archetype_name: str
-    rate: int
+    role_id: int
+    price: float
 
 
 class BidState(str, Enum):
     created = 'created'
     accepted = 'accepted'
+    partial = 'partial'
     rejected = 'rejected'
 
 
 class Bid(BaseModel):
     state: BidState = BidState.created
     bidder: abi.Address
-    archetype_name: str
-    value: int
-    rate: int
+    role_id: int
+    volume: abi.UInt256
+    volume_fulfilled: float | None = None
+    price: float
+    timestamp: int
+
+
+
+class EndAuctionPayload(BaseModel):
+    op: Literal['end_auction'] = 'end_auction'
+    project_id: str
