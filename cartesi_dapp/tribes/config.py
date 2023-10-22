@@ -8,5 +8,4 @@ class Settings(BaseSettings):
     FACTORY_ADDRESS: str = '0x23618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f'
 
 
-
 settings = Settings()

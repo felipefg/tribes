@@ -12,9 +12,16 @@ LOGGER = logging.getLogger(__name__)
 
 # Dictionary mapping project_id to its Project model
 PROJECTS = {}
+TRIBE_TO_PROJECT = {}
+SUP_CONTRACT_TO_PROJECT = {}
 
 # Dictionary mapping project_id to a list of bids
 BIDS = {}
+
+# Dictionaries mapping wallet address to their corresponding action
+COURSES_BOUGHT = {}
+COURSES_CREATED = {}
+COURSES_BIDDED = {}
 
 
 def create_project(
@@ -34,8 +41,19 @@ def create_project(
     )
 
     PROJECTS[project.project_id] = project
+    TRIBE_TO_PROJECT[tribe_address.lower()] = project
+    SUP_CONTRACT_TO_PROJECT[supporter_address.lower()] = project
 
+    COURSES_CREATED.setdefault(creator_address.lower(), []).append(project)
     return project
+
+
+def get_project_by_tribe(tribe_address: str) -> models.Project | None:
+    return TRIBE_TO_PROJECT.get(tribe_address.lower())
+
+
+def get_project_by_supporter(supporter_address: str) -> models.Project | None:
+    return SUP_CONTRACT_TO_PROJECT.get(supporter_address.lower())
 
 
 def gen_projects(filter_state: str = None):
@@ -60,8 +78,8 @@ def place_bid(
 
     bid = models.Bid(
         bidder=sender,
+        project=project,
         volume=volume,
-        role_id=bid_input.role_id,
         price=bid_input.price,
         timestamp=timestamp,
     )
@@ -70,6 +88,7 @@ def place_bid(
         bid.state = models.BidState.rejected
 
     BIDS.setdefault(project.project_id, []).append(bid)
+    COURSES_BIDDED.setdefault(sender, []).append(bid)
     return bid
 
 
@@ -137,3 +156,19 @@ def end_auction(project_id: str, timestamp: int):
             bidout.meta.state = models.BidState.accepted
 
     return project, vouchers
+
+
+def register_buyer(buyer_address: abi.Address, project: models.Project):
+    COURSES_BOUGHT.setdefault(buyer_address, []).append(project)
+
+
+def list_courses_for_buyer(address: abi.Address):
+    return COURSES_BOUGHT.get(address, [])
+
+
+def list_bids_for_address(address: abi.Address):
+    return COURSES_BIDDED.get(address, [])
+
+
+def list_courses_for_creator(address: abi.Address):
+    return COURSES_CREATED.get(address, [])

@@ -3,7 +3,7 @@ Data models for operations
 """
 from enum import Enum
 from typing import Literal
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from cartesi import abi
 from pydantic import BaseModel, Field
@@ -80,7 +80,6 @@ class DepositERC20Payload(BaseModel):
 class PlaceBidInput(BaseModel):
     op: Literal['place_bid'] = 'place_bid'
     project_id: str
-    role_id: int
     price: float
 
 
@@ -93,15 +92,30 @@ class BidState(str, Enum):
 
 class Bid(BaseModel):
     state: BidState = BidState.created
+    project: Project
     bidder: abi.Address
-    role_id: int
     volume: abi.UInt256
     volume_fulfilled: float | None = None
     price: float
     timestamp: int
 
 
+class ClaimAffiliationPayload(BaseModel):
+    # header: "claimAffiliation()"
+    affiliate_address: abi.Address
+
 
 class EndAuctionPayload(BaseModel):
     op: Literal['end_auction'] = 'end_auction'
     project_id: str
+
+
+class TribeMintPayload(BaseModel):
+    #sig: abi.Bytes4
+    sender: abi.Address
+
+
+class TribeMintWithAffiliatePayload(BaseModel):
+    #sig: abi.Bytes4
+    affiliate: abi.Address
+    sender: abi.Address
