@@ -19,6 +19,8 @@ from .models import (
     DepositEtherPayload,
     PlaceBidInput,
     EndAuctionPayload,
+    TribeMintPayload,
+    TribeMintWithAffiliatePayload,
 )
 from . import tribes_db, vouchers, auction
 
@@ -49,6 +51,7 @@ def address_relay(rollup: Rollup, data: RollupData) -> bool:
     LOGGER.debug('Got DApp address %s', data.payload)
     DAPP_ADDRESS = data.payload
     return True
+
 
 @abirouter.advance(msg_sender=settings.FACTORY_ADDRESS)
 def create_project(rollup: Rollup, data: RollupData) -> bool:
@@ -106,6 +109,17 @@ def list_projects(rollup: Rollup, data: RollupData, params: URLParameters):
     return True
 
 
+def _get_selector_bytes(sig) -> bytes:
+    from Crypto.Hash import keccak
+    sig_hash = keccak.new(digest_bits=256)
+    sig_hash.update(sig.encode('utf-8'))
+    return sig_hash.digest()[:4]
+
+
+TRIBE_MINT_SIG = _get_selector_bytes('mint(uint256)')
+TRIBE_MINT_AFF_SIG = _get_selector_bytes('mintWithAffiliate(uint256,address)')
+
+
 @abirouter.advance(msg_sender=settings.ETHER_PORTAL_ADDRESS)
 def deposit_ether(rollup: Rollup, data: RollupData) -> bool:
 
@@ -115,6 +129,12 @@ def deposit_ether(rollup: Rollup, data: RollupData) -> bool:
 
     deposit = abi.decode_to_model(data=payload, model=DepositEtherPayload,
                                   packed=True)
+
+    if deposit.execLayerData.startswith(TRIBE_MINT_SIG):
+        return _handle_direct_buy(rollup, data, deposit)
+
+    if deposit.execLayerData.startswith(TRIBE_MINT_AFF_SIG):
+        return _handle_affiliate_buy(rollup, data, deposit)
 
     try:
         deposit_data = deposit.execLayerData.decode('utf-8')
@@ -136,6 +156,44 @@ def deposit_ether(rollup: Rollup, data: RollupData) -> bool:
     }
     resp_payload = str2hex(json.dumps(resp))
     rollup.report(payload=resp_payload)
+    return True
+
+
+def _handle_direct_buy(
+    rollup: Rollup,
+    data: RollupData,
+    deposit: DepositEtherPayload
+) -> bool:
+    LOGGER.info("Handling direct buy of course")
+    mint_data = abi.decode_to_model(
+        data=deposit.execLayerData[4:],
+        model=TribeMintPayload,
+        packed=True
+    )
+
+    # Register Buyer
+    project = tribes_db.get_project_by_tribe(deposit.sender)
+    tribes_db.register_buyer(mint_data.sender, project)
+    # TODO: Pay creator
+    # TODO: Pay supporters
+    return True
+
+
+def _handle_affiliate_buy(
+    rollup: Rollup,
+    data: RollupData,
+    deposit: DepositEtherPayload
+) -> bool:
+    LOGGER.info("Handling affiliate buy of course")
+    mint_data = abi.decode_to_model(
+        data=deposit.execLayerData[4:],
+        model=TribeMintWithAffiliatePayload,
+        packed=True
+    )
+
+    # Register Buyer
+    project = tribes_db.get_project_by_tribe(deposit.sender)
+    tribes_db.register_buyer(mint_data.sender, project)
     return True
 
 
@@ -165,6 +223,36 @@ def end_auction(rollup: Rollup, data: RollupData) -> bool:
         rollup.voucher(voucher)
     return True
 
+
+@urlrouter.inspect(path='profile/{wallet}')
+def get_profile(rollup: Rollup, data: RollupData, params: URLParameters):
+    wallet = params.path_params['wallet'].lower()
+    resp = {
+        'courses_bought': [
+            x.dict() for x in tribes_db.list_courses_for_buyer(wallet)
+        ],
+        'bids': [
+            x.dict() for x in tribes_db.list_bids_for_address(wallet)
+        ],
+        'projects_created': [
+            x.dict() for x in tribes_db.list_courses_for_creator(wallet)
+        ],
+    }
+    resp_payload = str2hex(json.dumps(resp))
+    rollup.report(payload=resp_payload)
+    return True
+
+# Mandar jsons
+# Inspects:
+# - Todos os projetos
+#   - Adicionar: valor já arrecadado
+#   - Bool se pre-sale ou não
+# Todos os projetos que estão em pre
+# Perfil: /profile/{wallet}
+#   - Todos os cursos que ele comprou
+#   - Todos os bids que ele fez, e estado
+#   - Todos os projetos que ele criou
+# Automation para atualizar estado
 
 if __name__ == '__main__':
     dapp.run()
