@@ -26,7 +26,7 @@ contract SetupSender {
     {
         sepoliaNetworkConfig = SetupSenderArgs({
             router: 0xD0daae2231E9CB96b94C8512223533293C3693Bf,
-            target: 0x08cE191d7d066e9A5636CE094e343288aCa7B20D,
+            target: 0xd4422b65a548Bf3c17a19Ee1D6Cf6748B2cA4653,
             destinationChainSelector: 16015286601757825753 // Sepolia: 16015286601757825753
         });
     }
@@ -38,7 +38,7 @@ contract SetupSender {
     {
         mumbaiNetworkConfig = SetupSenderArgs({
             router: 0x70499c328e1E2a3c41108bd3730F6670a44595D1,
-            target: 0x08cE191d7d066e9A5636CE094e343288aCa7B20D,
+            target: 0xd4422b65a548Bf3c17a19Ee1D6Cf6748B2cA4653,
             destinationChainSelector: 12532609583862916517 // Polygon: 12532609583862916517
         });
     }
