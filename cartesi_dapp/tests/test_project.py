@@ -45,7 +45,9 @@ def project_creation_payload() -> str:
         name="Test Project",
         description="This is the **best** project ever!!",
 
-        max_price_auction=0.5,
+        creator_rate_pct=10,
+        affiliate_rate_pct=5,
+
         min_viable_value=int(0.05 * ETH_unit),
         pledged_value=int(0.5 * ETH_unit),
         minimum_bid=int(0.001 * ETH_unit),
@@ -158,7 +160,7 @@ def first_project_id(dapp_client: TestClient) -> str:
 def bid_1_payload(first_project_id: str) -> str:
     bid = PlaceBidInput(
         project_id=first_project_id,
-        price=0.5,
+        return_rate_pct=5,
     )
     LOGGER.debug("Bid 1 JSON: %s", bid.json())
     deposit = DepositEtherPayload(
@@ -184,6 +186,7 @@ def test_should_create_bid(dapp_client: TestClient, bid_1_payload: str):
     report = json.loads(report.decode('utf-8'))
     assert isinstance(report, dict)
     assert report['placeBid']['bidder'] == BIDDER_1_ADDRESS
+    assert report['placeBid']['state'] == 'created'
 
 
 @pytest.mark.order(after='test_should_create_bid')
@@ -290,3 +293,47 @@ def test_should_list_bids_on_profile(dapp_client: TestClient, first_project_id: 
     assert isinstance(report, dict)
     assert 'bids' in report
     assert report['bids'][0]['project']['project_id'] == first_project_id
+
+
+@pytest.mark.order(after='test_should_perform_sale')
+def test_should_update_on_heartbeat(dapp_client: TestClient, first_project_id: str):
+
+    dapp_client.send_advance(
+        hex_payload='0x3defb962',
+        timestamp=int(datetime.datetime(2023, 10, 20, 19).timestamp()),
+    )
+
+    inspect_payload = '0x' + 'project'.encode('ascii').hex()
+    dapp_client.send_inspect(hex_payload=inspect_payload)
+
+    assert dapp_client.rollup.status
+
+    report = dapp_client.rollup.reports[-1]['data']['payload']
+    report = bytes.fromhex(report[2:])
+    report = json.loads(report.decode('utf-8'))
+    assert isinstance(report, list)
+    assert 'project_id' in report[0]
+    assert report[0]['is_presales']
+    assert not report[0]['is_sales']
+
+
+@pytest.mark.order(after='test_should_update_on_heartbeat')
+def test_should_update_on_heartbeat_2(dapp_client: TestClient, first_project_id: str):
+
+    dapp_client.send_advance(
+        hex_payload='0x3defb962',
+        timestamp=int(datetime.datetime(2023, 10, 22).timestamp()),
+    )
+
+    inspect_payload = '0x' + 'project'.encode('ascii').hex()
+    dapp_client.send_inspect(hex_payload=inspect_payload)
+
+    assert dapp_client.rollup.status
+
+    report = dapp_client.rollup.reports[-1]['data']['payload']
+    report = bytes.fromhex(report[2:])
+    report = json.loads(report.decode('utf-8'))
+    assert isinstance(report, list)
+    assert 'project_id' in report[0]
+    assert not report[0]['is_presales']
+    assert report[0]['is_sales']

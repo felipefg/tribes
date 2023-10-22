@@ -80,12 +80,15 @@ def place_bid(
         bidder=sender,
         project=project,
         volume=volume,
-        price=bid_input.price,
+        return_rate_pct=bid_input.return_rate_pct,
+        price=1 / (1 + (bid_input.return_rate_pct / 100.0)),
         timestamp=timestamp,
     )
 
     if bid.volume < project.minimum_bid:
         bid.state = models.BidState.rejected
+    else:
+        project.total_bidded += volume
 
     BIDS.setdefault(project.project_id, []).append(bid)
     COURSES_BIDDED.setdefault(sender, []).append(bid)
@@ -172,3 +175,29 @@ def list_bids_for_address(address: abi.Address):
 
 def list_courses_for_creator(address: abi.Address):
     return COURSES_CREATED.get(address, [])
+
+
+def heartbeat(timestamp):
+    """Perform time-based maintenance on projects.
+
+    Parameters
+    ----------
+    timestamp : int
+        current unix timestamp
+    """
+    for project in PROJECTS.values():
+        if (
+            (project.state == models.ProjectStates.financing)
+            and (timestamp > project.auction_end_time)
+        ):
+            end_auction(project.project_id, timestamp)
+
+        project.is_presales = (
+            (timestamp >= project.presale_start_time)
+            and (timestamp < project.presale_end_time)
+        )
+
+        project.is_sales = (
+            (timestamp >= project.sale_start_time)
+            and (timestamp < project.sale_end_time)
+        )

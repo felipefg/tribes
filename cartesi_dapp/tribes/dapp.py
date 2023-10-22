@@ -10,6 +10,7 @@ from cartesi import (
     URLRouter,
     URLParameters,
     JSONRouter,
+    ABIFunctionSelectorHeader,
 )
 
 from .config import settings
@@ -242,17 +243,14 @@ def get_profile(rollup: Rollup, data: RollupData, params: URLParameters):
     rollup.report(payload=resp_payload)
     return True
 
-# Mandar jsons
-# Inspects:
-# - Todos os projetos
-#   - Adicionar: valor já arrecadado
-#   - Bool se pre-sale ou não
-# Todos os projetos que estão em pre
-# Perfil: /profile/{wallet}
-#   - Todos os cursos que ele comprou
-#   - Todos os bids que ele fez, e estado
-#   - Todos os projetos que ele criou
-# Automation para atualizar estado
+
+@abirouter.advance(
+    header=ABIFunctionSelectorHeader(function='heartbeat', argument_types=[])
+)
+def heartbeat(rollup: Rollup, data: RollupData):
+    tribes_db.heartbeat(data.metadata.timestamp)
+    return True
+
 
 if __name__ == '__main__':
     dapp.run()
