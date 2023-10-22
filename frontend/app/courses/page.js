@@ -1,15 +1,14 @@
 "use client";
-import axios from 'axios';
+import axios from "axios";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import gradient5 from "@/assets/gradient5.svg";
 import magnifier from "@/assets/magnifier.svg";
 import Popup from "@/components/Popup";
 import PopupBuyCourse from "@/components/PopupBuyCourse";
-import closeIcon from "@/assets/closeIcon.svg"
+import closeIcon from "@/assets/closeIcon.svg";
 
 const Courses = () => {
-  
   const [filter, setFilter] = useState("");
   const [buttonClicked, setButtonClicked] = useState("all");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -60,10 +59,16 @@ const Courses = () => {
   };
 
   useEffect(() => {
-    
-    const intervalId = setInterval(() => {
-      console.log('Esta função é executada a cada 5 segundos');
-    }, 5000); 
+    const intervalId = setInterval(async () => {
+      try {
+        const response = await axios.get("https://api.exemplo.com/dados"); // Substitua pela URL da API real
+        const data = response.data;
+        return data;
+      } catch (error) {
+        console.error("Erro na solicitação da API:", error);
+        throw error;
+      }
+    }, 5000);
 
     return () => {
       clearInterval(intervalId);
@@ -139,13 +144,22 @@ const Courses = () => {
                     <div className="flex justify-between">
                       <h1 className="text-3xl font-medium">Buy Course</h1>
                       <button
-                      onClick={() => setIsPopupOpen(false)}
-                      className="hover:scale-95 duration-300"
+                        onClick={() => setIsPopupOpen(false)}
+                        className="hover:scale-95 duration-300"
                       >
-                      <Image draggable={false} src={closeIcon} width={15} height={15} />
+                        <Image
+                          draggable={false}
+                          src={closeIcon}
+                          width={15}
+                          height={15}
+                        />
                       </button>
                     </div>
-                    <PopupBuyCourse status={status} title={title} description={description} />
+                    <PopupBuyCourse
+                      status={status}
+                      title={title}
+                      description={description}
+                    />
                   </Popup>
                 </div>
               </div>
