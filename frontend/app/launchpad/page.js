@@ -39,6 +39,7 @@ const Launchpad = () => {
     <div className="w-full">
       <div className="relative">
         <Image
+          draggable={false}
           src={gradient4}
           width={300}
           className="absolute left-0 -top-28 z-0"
@@ -63,7 +64,7 @@ const Launchpad = () => {
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             />
-            <Image src={magnifier} />
+            <Image draggable={false} src={magnifier} />
           </div>
         </div>
         <div className="px-20 py-8 grid grid-cols-4 gap-16">

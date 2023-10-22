@@ -22,6 +22,7 @@ const AuctionDetails = () => {
     <div className="w-full">
       <div className="relative">
         <Image
+          draggable={false}
           src={gradient4}
           width={300}
           className="absolute left-0 -top-28 z-0"
@@ -72,7 +73,7 @@ const AuctionDetails = () => {
             </p>
         </div >
         <div className="border w-4/12 rounded-tl-xl rounded-tr-[56px] rounded-bl-[56px] rounded-br-xl py-24 mt-12 mr-16 relative">
-            <Image src={gradient6} className="absolute -top-16 left-16 z-0" />
+            <Image draggable={false} src={gradient6} className="absolute -top-16 left-16 z-0" />
             <div className="relative z-10 px-12">
                 <h1 className="text-3xl font-medium">New bid</h1>
                 <div className="pt-12">
@@ -93,24 +94,3 @@ const AuctionDetails = () => {
   );
 };
 export default AuctionDetails;
-
-// export async function getServerSideProps(context) {
-//   // Coloque aqui a lógica para buscar o `selectedAuction`
-//   // Exemplo: const selectedAuction = await fetchAuctionDetails();
-
-//   if (!selectedAuction) {
-//     // Redirecione para a página inicial se o `selectedAuction` não existir
-//     return {
-//       redirect: {
-//         destination: '/',
-//         permanent: false,
-//       },
-//     };
-//   }
-
-//   return {
-//     props: {
-//       selectedAuction,
-//     },
-//   };
-// }

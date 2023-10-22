@@ -30,6 +30,9 @@ export function NavBar() {
         <Link href='/courses' className={`hover:scale-95 duration-300 ease-in-out ${path == '/courses' ? "bg-purple px-3 rounded-lg" : ""}`}>
             Courses
         </Link>
+        <Link href='/affiliate' className={`hover:scale-95 duration-300 ease-in-out ${path == '/affiliate' ? "bg-purple px-3 rounded-lg" : ""}`}>
+            Affiliate
+        </Link>
         <Link href='/profile' className={`hover:scale-95 duration-300 ease-in-out ${path == '/profile' ? "bg-purple px-3 rounded-lg" : ""}`}>
             Profile
         </Link>
