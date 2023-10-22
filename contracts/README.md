@@ -47,17 +47,12 @@ Welcome to the project documentation! This repository contains essential documen
     ```bash
     $ make cartesi contract="<TRIBES_FACTORY_CONTRACT_ADDRESS>" dapp="<CARTESI_DAPP>" CONFIG="--network <NETWORK_NAME>"
     ```
-    
-## 3. System Architecture 📐
-<p align="center">
-<img src="https://github.com/Lilium-DApp/foundry/assets/89201795/e02bef58-5e9a-4d15-b65f-fe4dc7fec9d8" width="800" height="600" />
-<p>
 
-## 4. Chainlink CCIP:
+## 3. Chainlink CCIP:
 
 - With CCIP from the Polygon Mumbai network, a creator can build a project on the execution layer infrastructure and deploy contracts on Sepolia.
 
-### 4.1 Deploy Sender Contract ( Polygon ):
+### 3.1 Deploy Sender Contract ( Polygon ):
 
 - Run the command bellow:
 
@@ -65,7 +60,7 @@ Welcome to the project documentation! This repository contains essential documen
     $ make ccip_sender CONFIG="--network mumbai"
     ```
 
-### 4.2 Deploy Receiver Contract ( Sepolia ):
+### 3.2 Deploy Receiver Contract ( Sepolia ):
 
 - Run the command bellow:
 
@@ -73,7 +68,7 @@ Welcome to the project documentation! This repository contains essential documen
     $ make ccip_receiver CONFIG="--network sepolia"
     ```
 
-## 5. Viewing Documentation Locally 💻
+## 4. Viewing Documentation Locally 💻
 
 View the generated documentation locally by serving it on a local server at port 4001. Use:
 
@@ -83,7 +78,7 @@ $ forge doc --serve --port 4001
 
 Access the documentation through your web browser by navigating to <http://localhost:4001>.
 
-## 6. Contracts on Explorer:
+## 5. Contracts on Explorer:
 
  - Sender: https://mumbai.polygonscan.com/address/0x255091a4ba6bdcf1a1f6cd4d1a40e4cd29a17922
  - Receiver: https://sepolia.etherscan.io/address/0x6c8d71e7b9d31e5c6345320c387224cf67ec55c5
