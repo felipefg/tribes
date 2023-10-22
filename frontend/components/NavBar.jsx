@@ -20,7 +20,7 @@ export function NavBar() {
     <div className="flex justify-between font-semibold text-grey items-center my-6 mx-10 relative z-20">
       <div>
         <Link href='/' className="hover:scale-95 duration-300 ease-in-out">
-            <Image src={logo} width={100}/>
+            <Image draggable={false} src={logo} width={100}/>
         </Link>
       </div>
       <div className="flex justify-between w-1/3">

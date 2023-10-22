@@ -8,7 +8,6 @@ import Image from "next/image";
 
 const AuctionDetails = () => {
   const { selectedAuction } = useAuctionContext();
-  console.log(selectedAuction)
   const router = useRouter();
 
   useEffect(() => {
