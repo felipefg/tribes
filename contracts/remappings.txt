@@ -3,6 +3,8 @@
 @contracts/=src/
 @mock/=test/mock
 @script/=script
+@utils/=src/ccip/utils/
+@chainlink/contracts-ccip/=lib/ccip/contracts/src/v0.8/
 @chainlink/contracts/=lib/chainlink/contracts/src/v0.8/
 @cartesi/util/=lib/rollups-contracts/onchain/rollups-arbitration/lib/solidity-util/
 @cartesi/contracts/=lib/rollups-contracts/onchain/rollups/contracts/

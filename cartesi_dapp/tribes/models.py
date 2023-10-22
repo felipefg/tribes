@@ -26,7 +26,8 @@ class ProjectStates(str, Enum):
 class CreateProjectData(BaseModel):
     name: str
     description: str
-    max_price_auction: int
+    creator_rate_pct: float
+    affiliate_rate_pct: float
     min_viable_value: int
     pledged_value: int
     auction_end_time: int
@@ -44,8 +45,8 @@ class Project(BaseModel):
     name: str
     description: str
     created_at: int
-    max_price_auction: int
-    final_price_auction: int | None = None
+    creator_rate_pct: float
+    affiliate_rate_pct: float
     min_viable_value: int
     pledged_value: int
     auction_end_time: int
@@ -56,11 +57,15 @@ class Project(BaseModel):
     sale_start_time: int
     sale_end_time: int
     sale_price: int
-    presales: bool = True
+    is_presales: bool = False
+    is_sales: bool = False
     state: ProjectStates = ProjectStates.financing
     creator_address: abi.Address
     tribe_address: abi.Address
     supporter_address: abi.Address
+    total_bidded: int = 0
+    total_financed: int | None = None
+    final_price_auction: float | None = None
 
 
 class DepositEtherPayload(BaseModel):
@@ -80,7 +85,7 @@ class DepositERC20Payload(BaseModel):
 class PlaceBidInput(BaseModel):
     op: Literal['place_bid'] = 'place_bid'
     project_id: str
-    price: float
+    return_rate_pct: float
 
 
 class BidState(str, Enum):
@@ -96,12 +101,12 @@ class Bid(BaseModel):
     bidder: abi.Address
     volume: abi.UInt256
     volume_fulfilled: float | None = None
+    return_rate_pct: float
     price: float
     timestamp: int
 
 
 class ClaimAffiliationPayload(BaseModel):
-    # header: "claimAffiliation()"
     affiliate_address: abi.Address
 
 
@@ -111,11 +116,9 @@ class EndAuctionPayload(BaseModel):
 
 
 class TribeMintPayload(BaseModel):
-    #sig: abi.Bytes4
     sender: abi.Address
 
 
 class TribeMintWithAffiliatePayload(BaseModel):
-    #sig: abi.Bytes4
     affiliate: abi.Address
     sender: abi.Address
