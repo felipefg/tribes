@@ -17,7 +17,7 @@ export function NavBar() {
   };
 
   return (
-    <div className="flex justify-between font-semibold text-grey items-center my-6 mx-10 relative z-20">
+    <div className="flex justify-between font-semibold text-grey items-center my-6 mx-10 relative ">
       <div>
         <Link href='/' className="hover:scale-95 duration-300 ease-in-out">
             <Image draggable={false} src={logo} width={100}/>

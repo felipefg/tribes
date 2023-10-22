@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import axios from 'axios';
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import gradient5 from "@/assets/gradient5.svg";
 import magnifier from "@/assets/magnifier.svg";
@@ -57,6 +58,17 @@ const Courses = () => {
     setDescription(description);
     setStatus(status);
   };
+
+  useEffect(() => {
+    
+    const intervalId = setInterval(() => {
+      console.log('Esta função é executada a cada 5 segundos');
+    }, 5000); 
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
   return (
     <div className="w-full">

@@ -1,12 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ethers } from "ethers";
 import Image from "next/image";
 import gradient5 from "@/assets/gradient5.svg";
 import magnifier from "@/assets/magnifier.svg";
+import Supporters from "@/abis/Supporters"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Courses = () => {
   const [filter, setFilter] = useState("");
   const [buttonClicked, setButtonClicked] = useState('pre-sale');
+  const [contract, setContract] = useState('')
 
   const itens = [
     { 
@@ -39,8 +44,66 @@ const Courses = () => {
     .filter((item) => item.title.toLowerCase().includes(filter.toLowerCase()))
     .filter((item) => item.status.toLowerCase() === buttonClicked)
 
+
+    const initializeContract = async () => {
+      try {
+        if (typeof window.ethereum !== "undefined") {
+          const contractAddress = "0x1da9e4e40378b949c494394a243112519681eecc";
+          const provider = new ethers.BrowserProvider(window.ethereum)
+          const signer = await provider.getSigner();
+  
+          const connect_contract = new ethers.Contract(
+            contractAddress,
+            Supporters.abi,
+            signer
+          );
+          setContract(connect_contract);
+        } else {
+          console.error("MetaMask is not installed or not available.");
+        }
+      } catch (error) {
+        console.error("Error initializing contract:", error);
+      }
+    };
+  
+    const handleAffiliate = async () => {
+      try {
+        await contract.claimAffiliation() 
+        notify()
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+  
+    useEffect(() => {
+      initializeContract();
+    }, []);
+
+    const notify = () => toast.success('Bid successfully placed!', {
+      position: "bottom-right",
+      autoClose: 2500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light"
+      });;
+
   return (
     <div className="w-full">
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <div className="relative">
         <Image
           draggable={false}
@@ -78,7 +141,9 @@ const Courses = () => {
                 </h1>
                 <p className="text-sm py-2 px-4">{item.description}</p>
                 <div className="flex justify-center mt-4">
-                  <button className="bg-black px-16 py-1 rounded-full text-whiteBackground text-sm" >
+                  <button 
+                  onClick={handleAffiliate}
+                  className="bg-black px-16 py-1 rounded-full text-whiteBackground text-sm" >
                      Affiliate
                   </button>
                 </div>
