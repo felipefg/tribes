@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { ethers } from "ethers";
 import { useMetaMask } from "../../contexts/WalletContext";
 import Image from "next/image";
 import gradient4 from "@/assets/gradient4.svg";
@@ -15,35 +17,35 @@ const Profile = () => {
   const { account } = useMetaMask();
   const [buttonClicked, setButtonClicked] = useState("purchased-courses");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [projects_created, setProjectsCreated] = useState([]);
+  const [purchased_courses, setPurchasedCourses] = useState([]);
+  const [bids, setBids] = useState([]);
 
-  const itemsPurchased = [
-    {
-      title: "Learn Python on Web3",
-      description:
-        "Learn how to use your Python to develop decentralized applications on Web 3.0",
-      date: "12/12/2023",
-    },
-  ];
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      try {
+        if (account) {
+          const response = await axios.get(
+            `https://tribes.felipefg.org/inspect/profile/${account}`
+          );
+          const data = response.data;
+          const payload = ethers.toUtf8String(data.reports[0].payload);
+          const payloadArray = JSON.parse(payload);
+          setProjectsCreated(payloadArray["projects_created"]);
+          setPurchasedCourses(payloadArray["courses_bought"]);
+          setBids(payloadArray["bids"]);
+          console.log(payloadArray);
+        }
+      } catch (error) {
+        console.error("Erro na solicitação da API:", error);
+        throw error;
+      }
+    }, 1000);
 
-  const itemsBids = [
-    {
-      bid_date: "12/12/2023",
-      rate: "9%",
-      bid_value: "2",
-      date_end_auction: "12/12/2023",
-      auction_status: "Finished",
-      creator: "0x00000000000",
-    },
-  ];
-
-  const itemsDashboard = [
-    {
-      title: "Learn Python on Web3",
-      rate: "9%",
-      percentage_raised: "87%",
-      description:"Learn how to use your Python to develop decentralized applications on Web 3.0"
-    }
-  ]
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [account]);
 
   return (
     <div className="w-full">
@@ -93,10 +95,10 @@ const Profile = () => {
           <div>
             {buttonClicked == "purchased-courses" && (
               <div>
-                {itemsPurchased.map((item, index) => (
+                {purchased_courses.map((item, index) => (
                   <CardPurchasedCourse
                     key={index}
-                    title={item.title}
+                    title={item.name}
                     description={item.description}
                   />
                 ))}
@@ -104,14 +106,17 @@ const Profile = () => {
             )}
             {buttonClicked == "bids-made" && (
               <div>
-                {itemsBids.map((item, index) => (
+                {bids.map((item, index) => (
                   <CardBids
-                  bid_date={item.bid_date}
-                  rate={item.rate}
-                  bid_value={item.bid_value}
-                  date_end_auction={item.date_end_auction}
-                  auction_status={item.auction_status}
-                  creator={item.creator}
+                    key={index}
+                    bid_date={item.timestamp}
+                    rate={item.project.preturn_rate_pct}
+                    bid_value={item.volume}
+                    date_end_auction={item.project.auction_end_time}
+                    auction_status={item.project.state}
+                    creator={item.project.creator_address}
+                    return_rate_pct={item.return_rate_pct}
+                    state={item.state}
                   />
                 ))}
               </div>
@@ -144,15 +149,25 @@ const Profile = () => {
                   <PopupProjectForm />
                 </Popup>
                 <div>
-                {itemsDashboard.map((item, index) => (
-                  <CardCreatorsDashboard
-                    title={item.title}
-                    rate={item.rate}
-                    percentage_raised={item.percentage_raised}
-                    description={item.description}
-                  />
-                ))}
-              </div>
+                  <div className="py-4 grid grid-cols-4 gap-16 relative z-10">
+                    {projects_created.map((item, index) => (
+                      <CardCreatorsDashboard
+                        key={index}
+                        title={item.name}
+                        description={item.description}
+                        rate={item.return_rate_pct}
+                        percentage_raised={
+                          item.total_financed / item.pledged_value
+                        }
+                        creator_rate_pct={item.creator_rate_pct}
+                        state={item.state}
+                        min_viable_value={item.min_viable_value}
+                        minimum_bid={item.minimum_bid}
+                        auction_end_time={item.auction_end_time}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>

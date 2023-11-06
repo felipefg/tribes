@@ -13,7 +13,7 @@ function PopupBuyCourse(props) {
     const initializeContract = async () => {
         try {
           if (typeof window.ethereum !== "undefined") {
-            const contractAddress = "0x408253c8143f916be48913c462206fa69248fce0";
+            const contractAddress = props.tribe_address;
             const provider = new ethers.BrowserProvider(window.ethereum)
             const signer = await provider.getSigner();
     
@@ -33,7 +33,7 @@ function PopupBuyCourse(props) {
     
       const handleBuyCourseWhithAffiliated = async () => {
         try {
-        
+          initializeContract();
           await contract.mintWithAffiliate(amount, affiliateAddress);
           notify();
         } catch (error) {
@@ -43,7 +43,7 @@ function PopupBuyCourse(props) {
 
       const handleBuyCourse = async () => {
         try {
-        
+          initializeContract();
           await contract.mint(amount);
           notify();
         } catch (error) {
@@ -51,9 +51,9 @@ function PopupBuyCourse(props) {
         }
       };
     
-      useEffect(() => {
-        initializeContract();
-      }, []);
+      // useEffect(() => {
+      //   initializeContract();
+      // }, []);
 
       const notify = () => toast.success('Successfully purchased', {
         position: "bottom-right",

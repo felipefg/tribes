@@ -8,21 +8,23 @@ import Image from "next/image";
 import { ethers } from "ethers";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import EtherPortal from "@/abis/EtherPortal"
+import EtherPortal from "@/abis/EtherPortal";
 
 const AuctionDetails = () => {
   const { selectedAuction } = useAuctionContext();
-
   const [returnRate, setReturnRate] = useState("");
   const [value, setValue] = useState("");
   const [contract, setContract] = useState("");
   const router = useRouter();
+  const formatedDate = new Date(selectedAuction?.auction_end_time * 1000);
+  const options = { year: "numeric", month: "numeric", day: "numeric" };
+  const formattedDateString = formatedDate.toLocaleString("en-US", options);
 
   const initializeContract = async () => {
     try {
       if (typeof window.ethereum !== "undefined") {
         const contractAddress = "0xFfdbe43d4c855BF7e0f105c400A50857f53AB044";
-        const provider = new ethers.BrowserProvider(window.ethereum)
+        const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
 
         const connect_contract = new ethers.Contract(
@@ -44,19 +46,22 @@ const AuctionDetails = () => {
     try {
       const jsonData = {
         op: "place_bid",
-        project_id: selectedAuction?.project_id, //mudar
+        project_id: selectedAuction?.project_id,
         return_rate_pct: returnRate,
-      }
+      };
       const utf8Bytes = ethers.toUtf8Bytes(JSON.stringify(jsonData));
-      const final_value = ethers.parseEther(String(value))
+      const final_value = ethers.parseEther(String(value));
 
-      await contract.depositEther('0x828fB8f03fdd6F1146fd4b9e7bc22235cc42a6fc', utf8Bytes, {value: final_value} );
+      await contract.depositEther(
+        selectedAuction?.tribe_address,
+        utf8Bytes,
+        { value: final_value }
+      );
       notify();
     } catch (error) {
       console.error("Error placing bid:", error);
     }
   };
-
 
   useEffect(() => {
     if (selectedAuction == null) {
@@ -66,16 +71,17 @@ const AuctionDetails = () => {
     initializeContract();
   }, [selectedAuction]);
 
-  const notify = () => toast.success('Bid successfully placed!', {
-    position: "bottom-right",
-    autoClose: 2500,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: "light"
-    });;
+  const notify = () =>
+    toast.success("Bid successfully placed!", {
+      position: "bottom-right",
+      autoClose: 2500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
 
   return (
     <div className="w-full">
@@ -109,15 +115,21 @@ const AuctionDetails = () => {
           </div>
           <div className="grid grid-cols-3 gap-12 py-4">
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-3xl font-medium">10 %</h1>
+              <h1 className="text-3xl font-medium">
+                {selectedAuction?.max_return_rate_pct}%
+              </h1>
               <p className="text-sm text-center">Maximum rate of return</p>
             </div>
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-3xl font-medium">{selectedAuction?.minimum_bid / 1e18}</h1>
+              <h1 className="text-3xl font-medium">
+                {selectedAuction?.minimum_bid / 1e18} ETH
+              </h1>
               <p className="text-sm text-center">minimum bid amount</p>
             </div>
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-3xl font-medium">{selectedAuction?.min_viable_value  / 1e18}</h1>
+              <h1 className="text-3xl font-medium">
+                {selectedAuction?.min_viable_value / 1e18} ETH
+              </h1>
               <p className="text-sm text-center">
                 minimum required to start project
               </p>
@@ -125,21 +137,21 @@ const AuctionDetails = () => {
           </div>
           <div className="grid grid-cols-3 gap-12 py-4">
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-3xl font-medium">87%</h1>
+              <h1 className="text-3xl font-medium">
+                {(selectedAuction?.total_financed / selectedAuction?.pledged_value) * 100} %
+              </h1>
               <p className="text-sm text-center">Percentage raised</p>
             </div>
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-2xl font-medium">{selectedAuction?.state}</h1>
+              <h1 className="text-2xl font-medium">{(selectedAuction?.state).toUpperCase()}</h1>
               <p className="text-sm text-center">Auction status</p>
             </div>
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-2xl font-medium">10/23/2023</h1>
+              <h1 className="text-2xl font-medium">{formattedDateString}</h1>
               <p className="text-sm text-center">End of auction</p>
             </div>
           </div>
-          <p className="py-8">
-            {selectedAuction?.description}
-          </p>
+          <p className="py-8">{selectedAuction?.description}</p>
         </div>
         <div className="border w-4/12 rounded-tl-xl rounded-tr-[56px] rounded-bl-[56px] rounded-br-xl py-24 mt-12 mr-16 relative">
           <Image

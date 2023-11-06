@@ -20,7 +20,7 @@ export function NavBar() {
     <div className="flex justify-between font-semibold text-grey items-center my-6 mx-10 relative z-10">
       <div>
         <Link href='/' className="hover:scale-95 duration-300 ease-in-out">
-            <Image draggable={false} src={logo} width={100}/>
+            <Image alt="logo" draggable={false} src={logo} width={100}/>
         </Link>
       </div>
       <div className="flex justify-between w-1/3">
@@ -29,9 +29,6 @@ export function NavBar() {
         </Link>
         <Link href='/courses' className={`hover:scale-95 duration-300 ease-in-out ${path == '/courses' ? "bg-purple px-3 rounded-lg" : ""}`}>
             Courses
-        </Link>
-        <Link href='/affiliate' className={`hover:scale-95 duration-300 ease-in-out ${path == '/affiliate' ? "bg-purple px-3 rounded-lg" : ""}`}>
-            Affiliate
         </Link>
         <Link href='/profile' className={`hover:scale-95 duration-300 ease-in-out ${path == '/profile' ? "bg-purple px-3 rounded-lg" : ""}`}>
             Profile

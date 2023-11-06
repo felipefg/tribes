@@ -6,10 +6,75 @@ import Image from "next/image";
 
 export function CardCreatorsDashboard(props) {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [rate, setRate] = useState("");
+  const [title, setTitle] = useState("");
+  const [percentageRaised, setPercentageRaised] = useState("");
+  const [viableValue, setViableValue] = useState("");
+  const [minimumBid, setMinimumBid] = useState("");
+  const [description, setDescription] = useState("");
+  const [state, setState] = useState("");
+  const [date, setDate] = useState("");
 
+  const handleClick = async (
+    title,
+    creator_rate_pct,
+    percentage_raised,
+    minimum_bid,
+    min_viable_value,
+    description,
+    state,
+    auction_end_time
+  ) => {
+    setIsPopupOpen(true);
+
+    setRate(creator_rate_pct);
+    setTitle(title);
+    setPercentageRaised(percentage_raised);
+    setViableValue(min_viable_value);
+    setMinimumBid(minimum_bid);
+    setDescription(description);
+    setState(state);
+
+    const formatedDate = new Date(auction_end_time * 1000);
+    const options = { year: "numeric", month: "numeric", day: "numeric" };
+    setDate(formatedDate.toLocaleString("en-US", options));
+  };
 
   return (
-    <div className="py-4 grid grid-cols-4 gap-16 relative z-10">
+    <div>
+      <button
+        onClick={() =>
+          handleClick(
+            props.title,
+            props.creator_rate_pct,
+            props.percentage_raised,
+            props.minimum_bid,
+            props.min_viable_value,
+            props.description,
+            props.state,
+            props.auction_end_time
+          )
+        }
+        className="border rounded-tl-xl rounded-tr-[48px] rounded-bl-[48px] rounded-br-xl py-8 px-4"
+      >
+        <h1 className="font-semibold text-xl pb-6 px-4">{props.title}</h1>
+        <div className="grid grid-cols-2 gap-4 py-2 justify-center items-start px-4">
+          <div className="flex flex-col justify-center items-center py-2 w-32">
+            <h1 className="text-2xl font-medium">{props.creator_rate_pct} %</h1>
+            <p className="text-sm text-center">Maximum rate of return</p>
+          </div>
+          <div className="flex flex-col justify-center items-center py-2 w-32">
+            <h1 className="text-2xl font-medium">
+              {props.percentage_raised} %
+            </h1>
+            <p className="text-sm text-center">Percentage raised</p>
+          </div>
+        </div>
+        <div className="flex justify-center items-center w-full py-1 mt-4 bg-purple rounded-lg font-medium">
+          {props.state.toUpperCase()}
+        </div>
+      </button>
+
       <Popup isOpen={isPopupOpen}>
         <div className="flex justify-end">
           <button
@@ -21,19 +86,19 @@ export function CardCreatorsDashboard(props) {
         </div>
         <div className="">
           <div className="relative z-10 py-4">
-            <h1 className="text-4xl font-medium">Learn Python on Web3</h1>
+            <h1 className="text-4xl font-medium">{title}</h1>
           </div>
           <div className="grid grid-cols-3 gap-12 py-4">
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-3xl font-medium">10 %</h1>
+              <h1 className="text-3xl font-medium">{rate} %</h1>
               <p className="text-sm text-center">Maximum rate of return</p>
             </div>
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-3xl font-medium">1 ETH </h1>
+              <h1 className="text-3xl font-medium">{minimumBid / 1e18} ETH </h1>
               <p className="text-sm text-center">minimum bid amount</p>
             </div>
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-3xl font-medium">15 ETH</h1>
+              <h1 className="text-3xl font-medium">{viableValue / 1e18} ETH</h1>
               <p className="text-sm text-center">
                 minimum required to start project
               </p>
@@ -41,48 +106,21 @@ export function CardCreatorsDashboard(props) {
           </div>
           <div className="grid grid-cols-3 gap-12 py-4">
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-3xl font-medium">87%</h1>
+              <h1 className="text-3xl font-medium">{percentageRaised} %</h1>
               <p className="text-sm text-center">Percentage raised</p>
             </div>
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-2xl font-medium">Finished</h1>
+              <h1 className="text-2xl font-medium">{state.toUpperCase()}</h1>
               <p className="text-sm text-center">Auction status</p>
             </div>
             <div className="flex flex-col justify-center items-center w-36">
-              <h1 className="text-2xl font-medium">11/11/2023</h1>
+              <h1 className="text-2xl font-medium">{date}</h1>
               <p className="text-sm text-center">End of auction</p>
             </div>
           </div>
-          <p className="py-8">
-            Learn how to use your Python to develop decentralized applications
-            on Web 3.0. Learn how to master your python skills and apply it to
-            breate decentralized apps. Course and classes with Msc Felipe an AI
-            specialist and seasoned developer using python for AI DApps in Web
-            3.0 .
-          </p>
+          <p className="py-8">{description}</p>
         </div>
       </Popup>
-      <button
-        onClick={() => setIsPopupOpen(true)}
-        className="border rounded-tl-xl rounded-tr-[48px] rounded-bl-[48px] rounded-br-xl py-8 px-2"
-      >
-        <h1 className="font-semibold text-xl pb-6 px-4">{props.title}</h1>
-        <div className="grid grid-cols-2 gap-4 py-2 justify-center items-start px-4">
-          <div className="flex flex-col justify-center items-center py-2 w-32">
-            <h1 className="text-2xl font-medium">{props.rate}</h1>
-            <p className="text-sm text-center">Maximum rate of return</p>
-          </div>
-          <div className="flex flex-col justify-center items-center py-2 w-32">
-            <h1 className="text-2xl font-medium">{props.percentage_raised}</h1>
-            <p className="text-sm text-center">Percentage raised</p>
-          </div>
-        </div>
-        <h1 className="text-sm font-medium pt-2 pl-4">Description:</h1>
-        <p className="text-sm p-1 pl-4">{props.description}</p>
-        <div className="flex justify-center items-center w-full py-1 mt-4 bg-purple rounded-lg">
-          Finished
-        </div>
-      </button>
     </div>
   );
 }

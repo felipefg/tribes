@@ -10,7 +10,6 @@ export function CardPurchasedCourse(props) {
         <p className="text-sm py-2 px-4">
           {props.description}
         </p>
-        <p className="text-sm py-4 px-4">{props.date}</p>
       </div>
     </div>
   );

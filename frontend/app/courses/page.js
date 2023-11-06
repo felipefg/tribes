@@ -17,33 +17,35 @@ const Courses = () => {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("");
   const [project_id, setProjectId] = useState("");
-  const [responseApi, setResponseApi] = useState([])
-  console.log(responseApi)
+  const [responseApi, setResponseApi] = useState([]);
+  const [tribeAddress, setTribeAddress] = useState("");
 
-
-  const handleClick = async (status, title, description, id) => {
+  const handleClick = async (status, title, description, id, tribe_address) => {
     setIsPopupOpen(true);
-    setProjectId(id)
+    setProjectId(id);
     setTitle(title);
     setDescription(description);
     setStatus(status);
+    setTribeAddress(tribe_address);
   };
 
   useEffect(() => {
     const intervalId = setInterval(async () => {
       try {
-        const response = await axios.get("http://173.230.140.91:8080/inspect/project"); // Substitua pela URL da API real
+        const response = await axios.get(
+          "https://tribes.felipefg.org/inspect/project"
+        );
         const data = response.data;
-        const payload = ethers.toUtf8String(data.reports[0].payload)
+        const payload = ethers.toUtf8String(data.reports[0].payload);
         const payloadArray = JSON.parse(payload);
-        setResponseApi(payloadArray)
+        setResponseApi(payloadArray);
 
         return data;
       } catch (error) {
         console.error("Erro na solicitação da API:", error);
         throw error;
       }
-    }, 5000);
+    }, 1000);
 
     return () => {
       clearInterval(intervalId);
@@ -54,6 +56,7 @@ const Courses = () => {
     <div className="w-full">
       <div className="relative">
         <Image
+          alt="decoration"
           draggable={false}
           src={gradient5}
           width={400}
@@ -96,50 +99,115 @@ const Courses = () => {
             </button>
           </div>
           <div className="px-20 py-8 grid grid-cols-3 gap-16">
-            {responseApi.map((item, index) => (
-              <div
-                key={index}
-                className="border rounded-tl-xl rounded-tr-[48px] rounded-bl-[48px] rounded-br-xl py-8 px-2"
-              >
-                <p className="px-4 text-sm"></p>
-                <h1 className="font-semibold text-xl pb-6 px-4">
-                  {item.name}
-                </h1>
-                <p className="text-sm py-2 px-4">{item.description}</p>
-                <div className="flex justify-center mt-4">
-                  <button
-                    className="bg-black px-16 py-1 rounded-full text-whiteBackground text-sm"
-                    onClick={() =>
-                      handleClick(item.status, item.title, item.description, item.project_id)
-                    }
-                  >
-                    See more
-                  </button>
-                  <Popup isOpen={isPopupOpen}>
-                    <div className="flex justify-between">
-                      <h1 className="text-3xl font-medium">Buy Course</h1>
-                      <button
-                        onClick={() => setIsPopupOpen(false)}
-                        className="hover:scale-95 duration-300"
-                      >
-                        <Image
-                          draggable={false}
-                          src={closeIcon}
-                          width={15}
-                          height={15}
-                        />
-                      </button>
-                    </div>
-                    <PopupBuyCourse
-                      status={status}
-                      title={title}
-                      description={description}
-                      project_id={project_id}
-                    />
-                  </Popup>
+            {buttonClicked == "all" &&
+              responseApi.map((item, index) => (
+                <div
+                  key={index}
+                  className="border rounded-tl-xl rounded-tr-[48px] rounded-bl-[48px] rounded-br-xl py-8 px-2"
+                >
+                  <p className="px-4 text-sm"></p>
+                  <h1 className="font-semibold text-xl pb-6 px-4">
+                    {item.name}
+                  </h1>
+                  <p className="text-sm py-2 px-4">{item.description}</p>
+                  <div className="flex justify-center mt-4">
+                    <button
+                      className="bg-black px-16 py-1 rounded-full text-whiteBackground text-sm"
+                      onClick={() =>
+                        handleClick(
+                          item.status,
+                          item.title,
+                          item.description,
+                          item.project_id,
+                          item.tribe_address
+                        )
+                      }
+                    >
+                      See more
+                    </button>
+                    <Popup isOpen={isPopupOpen}>
+                      <div className="flex justify-between">
+                        <h1 className="text-3xl font-medium">Buy Course</h1>
+                        <button
+                          onClick={() => setIsPopupOpen(false)}
+                          className="hover:scale-95 duration-300"
+                        >
+                          <Image
+                            alt="decoration"
+                            draggable={false}
+                            src={closeIcon}
+                            width={15}
+                            height={15}
+                          />
+                        </button>
+                      </div>
+                      <PopupBuyCourse
+                        status={status}
+                        title={title}
+                        description={description}
+                        project_id={project_id}
+                        tribe_address={tribeAddress}
+                      />
+                    </Popup>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            {buttonClicked == "pre-sale" &&
+              responseApi.map((item) =>
+                item.is_presales == false ? (
+                  ""
+                ) : (
+                  <div
+                    key={index}
+                    className="border rounded-tl-xl rounded-tr-[48px] rounded-bl-[48px] rounded-br-xl py-8 px-2"
+                  >
+                    <p className="px-4 text-sm"></p>
+                    <h1 className="font-semibold text-xl pb-6 px-4">
+                      {item.name}
+                    </h1>
+                    <p className="text-sm py-2 px-4">{item.description}</p>
+                    <div className="flex justify-center mt-4">
+                      <button
+                        className="bg-black px-16 py-1 rounded-full text-whiteBackground text-sm"
+                        onClick={() =>
+                          handleClick(
+                            item.status,
+                            item.title,
+                            item.description,
+                            item.project_id
+                          )
+                        }
+                      >
+                        See more
+                      </button>
+                      <Popup isOpen={isPopupOpen}>
+                        <div className="flex justify-between">
+                          <h1 className="text-3xl font-medium">Buy Course</h1>
+                          <button
+                            onClick={() => setIsPopupOpen(false)}
+                            className="hover:scale-95 duration-300"
+                          >
+                            <Image
+                              alt="decoration"
+                              draggable={false}
+                              src={closeIcon}
+                              width={15}
+                              height={15}
+                            />
+                          </button>
+                        </div>
+                        <PopupBuyCourse
+                          status={status}
+                          title={title}
+                          description={description}
+                          project_id={project_id}
+                          tribeAddress={tribeAddress}
+                        />
+                      </Popup>
+                    </div>
+                  </div>
+                )
+              )}
           </div>
         </div>
       </div>

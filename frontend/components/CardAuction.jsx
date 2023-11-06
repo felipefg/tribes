@@ -16,7 +16,11 @@ export function CardAuction(props) {
       minimum_bid: props.minimum_bid,
       min_viable_value: props.min_viable_value,
       state: props.state,
-      auction_end_time: props.auction_end_time
+      auction_end_time: props.auction_end_time,
+      max_return_rate_pct: props.max_return_rate_pct,
+      total_financed: props.total_financed,
+      pledged_value: props.pledged_value,
+      tribe_address: props.tribe_address
     });
 
     router.push("/auction-details");

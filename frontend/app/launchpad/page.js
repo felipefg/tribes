@@ -15,7 +15,7 @@ const Launchpad = () => {
   useEffect(() => {
     const intervalId = setInterval(async () => {
       try {
-        const response = await axios.get("http://173.230.140.91:8080/inspect/project");
+        const response = await axios.get("https://tribes.felipefg.org/inspect/project"); 
         const data = response.data;
         const payload = ethers.toUtf8String(data.reports[0].payload)
         const payloadArray = JSON.parse(payload);
@@ -27,7 +27,7 @@ const Launchpad = () => {
         console.error("Erro na solicitação da API:", error);
         throw error;
       }
-    }, 5000);
+    }, 1000);
 
     return () => {
       clearInterval(intervalId);
@@ -78,8 +78,10 @@ const Launchpad = () => {
               min_viable_value={item.min_viable_value}
               state={item.state}
               auction_end_time={item.auction_end_time}
-
-
+              max_return_rate_pct={item.max_return_rate_pct}
+              total_financed={item.total_financed}
+              pledged_value={item.pledged_value}
+              tribe_address={item.tribe_address}
               />
           ))}
         </div>
