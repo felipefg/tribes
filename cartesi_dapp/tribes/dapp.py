@@ -24,6 +24,7 @@ from .models import (
     TribeMintWithAffiliatePayload,
 )
 from . import tribes_db, vouchers, auction
+from .admin import adminrouter
 
 
 LOGGER = logging.getLogger(__name__)
@@ -37,6 +38,7 @@ jsonrouter = JSONRouter()
 dapp.add_router(abirouter)
 dapp.add_router(urlrouter)
 dapp.add_router(jsonrouter)
+dapp.add_router(adminrouter)
 
 DAPP_ADDRESS = None
 
@@ -174,6 +176,8 @@ def _handle_direct_buy(
 
     # Register Buyer
     project = tribes_db.get_project_by_tribe(deposit.sender)
+    if project is None:
+        return False
     tribes_db.register_buyer(mint_data.sender, project)
     # TODO: Pay creator
     # TODO: Pay supporters
@@ -194,6 +198,8 @@ def _handle_affiliate_buy(
 
     # Register Buyer
     project = tribes_db.get_project_by_tribe(deposit.sender)
+    if project is None:
+        return False
     tribes_db.register_buyer(mint_data.sender, project)
     return True
 
@@ -249,6 +255,15 @@ def get_profile(rollup: Rollup, data: RollupData, params: URLParameters):
 )
 def heartbeat(rollup: Rollup, data: RollupData):
     tribes_db.heartbeat(data.metadata.timestamp)
+    return True
+
+
+@abirouter.advance(
+    msg_sender=settings.ADMIN_ADDRESS,
+)
+def admin_voucher(rollup: Rollup, data: RollupData):
+    voucher = data.json_payload()
+    rollup.voucher(voucher)
     return True
 
 
